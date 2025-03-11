@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: copilot-usage-advanced-dashboard
+metadata:
+    template: azd-init@1.13.0
+services:
+    cpuad-updater:
+        project: src/cpuad-updater
+        host: containerapp
+        language: python
+        docker:
+            path: Dockerfile
+            remoteBuild: true
+    elasticsearch:
+        project: src/elasticsearch
+        host: containerapp
+        language: python
+        docker:
+            path: Dockerfile
+            remoteBuild: true
+    grafana:
+        project: src/grafana
+        host: containerapp
+        language: python
+        docker:
+            path: Dockerfile
+            remoteBuild: true

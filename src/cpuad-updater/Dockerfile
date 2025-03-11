@@ -1,5 +1,5 @@
-# Use the official Ubuntu 20.04 base image
-FROM ubuntu:22.04
+# Use the official Python 3.10 base image
+FROM python:3.13.2:sha256:385ccb8304f6330738a6d9e6fa0bd7608e006da7e15bc52b33b0398e1ba4a15b
 
 # Set environment variables
 # PYTHONDONTWRITEBYTECODE: Prevents Python from writing .pyc files to disk
@@ -12,7 +12,7 @@ WORKDIR /app
 
 # Install dependencies
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip && \
+    apt-get install -y python3-pip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -31,6 +31,16 @@ COPY log_utils.py /app/
 COPY main.py /app/
 COPY metrics_2_usage_convertor.py /app/
 COPY version /app/
+
+# Create a non-root user and group
+RUN groupadd -g 1000 cpuadupdater && \
+    useradd -u 1000 -g cpuadupdater -s /bin/bash -m cpuadupdater
+
+# Change ownership of the directories
+RUN chown -R cpuadupdater:cpuadupdater /app
+
+# Switch to the new user
+USER cpuadupdater
 
 # Run the command one time
 CMD ["python3", "main.py"]
