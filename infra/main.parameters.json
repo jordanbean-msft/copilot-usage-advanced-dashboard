@@ -21,17 +21,30 @@
         "value": {
           "settings": [
             {
-              "name": "",
-              "value": "${VAR}",
-              "_comment_name": "The name of the environment variable when running in Azure. If empty, ignored.",
-              "_comment_value": "The value to provide. This can be a fixed literal, or an expression like ${VAR} to use the value of 'VAR' from the current environment."
+              "name": "LOG_PATH",
+              "value": "logs"
             },
             {
-              "name": "",
-              "value": "${VAR_S}",
-              "secret": true,
-              "_comment_name": "The name of the environment variable when running in Azure. If empty, ignored.",
-              "_comment_value": "The value to provide. This can be a fixed literal, or an expression like ${VAR_S} to use the value of 'VAR_S' from the current environment."
+              "name": "EXECUTION_INTERVAL",
+              "value": "1"
+            },
+            {
+              "name": "ELASTICSEARCH_URL",
+              "value": "http://elastic-search:9200"
+            },
+            {
+              "name": "ORGANIZATION_SLUGS",
+              "value": "${GITHUB_ORGANIZATION_SLUGS}"
+            },
+            {
+              "name": "GITHUB_PAT",
+              "value": "${GITHUB_PAT}",
+              "secret": true
+            },
+            {
+              "name": "GRAFANA_TOKEN",
+              "value": "${GRAFANA_TOKEN}",
+              "secret": true
             }
           ]
         }
@@ -40,17 +53,12 @@
         "value": {
           "settings": [
             {
-              "name": "",
-              "value": "${VAR}",
-              "_comment_name": "The name of the environment variable when running in Azure. If empty, ignored.",
-              "_comment_value": "The value to provide. This can be a fixed literal, or an expression like ${VAR} to use the value of 'VAR' from the current environment."
+              "name": "xpack.security.enabled",
+              "value": "false"
             },
             {
-              "name": "",
-              "value": "${VAR_S}",
-              "secret": true,
-              "_comment_name": "The name of the environment variable when running in Azure. If empty, ignored.",
-              "_comment_value": "The value to provide. This can be a fixed literal, or an expression like ${VAR_S} to use the value of 'VAR_S' from the current environment."
+              "name": "ES_JAVA_OPTS",
+              "value": "-Xms4g -Xmx4g"
             }
           ]
         }
@@ -59,17 +67,8 @@
         "value": {
           "settings": [
             {
-              "name": "",
-              "value": "${VAR}",
-              "_comment_name": "The name of the environment variable when running in Azure. If empty, ignored.",
-              "_comment_value": "The value to provide. This can be a fixed literal, or an expression like ${VAR} to use the value of 'VAR' from the current environment."
-            },
-            {
-              "name": "",
-              "value": "${VAR_S}",
-              "secret": true,
-              "_comment_name": "The name of the environment variable when running in Azure. If empty, ignored.",
-              "_comment_value": "The value to provide. This can be a fixed literal, or an expression like ${VAR_S} to use the value of 'VAR_S' from the current environment."
+              "name": "GF_LOG_LEVEL",
+              "value": "debug"
             }
           ]
         }

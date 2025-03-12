@@ -23,6 +23,7 @@ var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = uniqueString(subscription().id, resourceGroup().id, location)
 var elasticSearchFileShareName = 'elastic-search'
 var grafanaFileShareName = 'grafana'
+var cpuadUpdaterFileShareName = 'cpuad-updater'
 
 module monitoring './modules/monitoring.bicep' = {
   name: 'monitoringDeployment'
@@ -74,6 +75,7 @@ module storageAccount './modules/storage-account.bicep' = {
     resourceToken: resourceToken
     elasticSearchFileShareName: elasticSearchFileShareName
     grafanaFileShareName: grafanaFileShareName
+    cpuadUpdaterFileShareName: cpuadUpdaterFileShareName
     userAssignedIdentityPrincipalId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_PRINCIPAL_ID
     keyVaultResourceId: keyVault.outputs.AZURE_RESOURCE_KEY_VAULT_ID
   }
@@ -86,6 +88,26 @@ module containerAppsEnvironment './modules/container-app-environment.bicep' = {
     abbrs: abbrs
     resourceToken: resourceToken
     logAnalyticsWorkspaceResourceId: monitoring.outputs.AZURE_RESOURCE_MONITORING_LOG_ANALYTICS_ID
+    storages: [
+      {
+        kind: 'SMB'
+        accessMode: 'ReadWrite'
+        shareName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+        storageAccountName: storageAccount.outputs.AZURE_STORAGE_ACCOUNT_NAME
+      }
+      {
+        kind: 'SMB'
+        accessMode: 'ReadWrite'
+        shareName: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
+        storageAccountName: storageAccount.outputs.AZURE_STORAGE_ACCOUNT_NAME
+      }
+      {
+        kind: 'SMB'
+        accessMode: 'ReadWrite'
+        shareName: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
+        storageAccountName: storageAccount.outputs.AZURE_STORAGE_ACCOUNT_NAME
+      }
+    ]
   }
 }
 
@@ -100,7 +122,7 @@ module cpuadUpdaterFetchLatestImage './modules/fetch-container-image.bicep' = {
 module cpuadUpdater './modules/container-app.bicep' = {
   name: 'cpuadUpdaterDeployment'
   params: {
-    name: 'cpuadUpdater'
+    name: 'cpuad-updater'
     location: location
     containerRegistryLoginServer: containerRegistry.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
     containerAppsEnvironmentResourceId: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
@@ -113,6 +135,19 @@ module cpuadUpdater './modules/container-app.bicep' = {
     tags: tags
     cpu: '1.0'
     memory: '2.0Gi'
+    volumeMounts: [
+      {
+        mountPath: '/app/logs'
+        volumeName: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
+      }
+    ]
+    volumes: [
+      {
+        name: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
+        storageName: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
+        storageType: 'AzureFile'
+      }
+    ]
   }
 }
 
@@ -140,6 +175,19 @@ module elasticSearch './modules/container-app.bicep' = {
     tags: tags
     cpu: '1.0'
     memory: '2.0Gi'
+    volumeMounts: [
+      {
+        mountPath: '/usr/share/elasticsearch/data'
+        volumeName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+      }
+    ]
+    volumes: [
+      {
+        name: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+        storageName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+        storageType: 'AzureFile'
+      }
+    ]
   }
 }
 
@@ -168,6 +216,19 @@ module grafana './modules/container-app.bicep' = {
     ingressExternal: true
     cpu: '1.0'
     memory: '2.0Gi'
+    volumeMounts: [
+      {
+        mountPath: '/var/lib/grafana'
+        volumeName: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
+      }
+    ]
+    volumes: [
+      {
+        name: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
+        storageName: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
+        storageType: 'AzureFile'
+      }
+    ]
   }
 }
 

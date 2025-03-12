@@ -5,6 +5,7 @@ param resourceToken string
 param userAssignedIdentityPrincipalId string
 param elasticSearchFileShareName string
 param grafanaFileShareName string
+param cpuadUpdaterFileShareName string
 param keyVaultResourceId string
 
 var accessKey1Name = 'storageAccountKey1'
@@ -13,7 +14,6 @@ module storageAccount 'br/public:avm/res/storage/storage-account:0.18.2' = {
   name: 'storageAccount'
   params: {
     name: '${abbrs.storageStorageAccounts}${resourceToken}'
-    kind: 'BlobStorage'
     location: location
     skuName: 'Standard_LRS'
     tags: tags
@@ -38,6 +38,10 @@ module storageAccount 'br/public:avm/res/storage/storage-account:0.18.2' = {
           name: grafanaFileShareName
           quota: 1024
         }
+        {
+          name: cpuadUpdaterFileShareName
+          quota: 1024
+        }
       ]
     }
   }
@@ -48,3 +52,4 @@ output AZURE_STORAGE_ACCOUNT_NAME string = storageAccount.outputs.name
 output AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME string = elasticSearchFileShareName
 output AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME string = grafanaFileShareName
 output AZURE_STORAGE_ACCOUNT_KEY_SECRET_NAME string = accessKey1Name
+output AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME string = cpuadUpdaterFileShareName

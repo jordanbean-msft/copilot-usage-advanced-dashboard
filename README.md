@@ -656,3 +656,11 @@ At this point, return to the Grafana page and refresh. You should be able to see
 or
 
 ![](image/image_wjdhYnlwOZ.png)
+
+## Deployment
+
+`azd env set GITHUB_PAT ...`
+
+`azd env set GITHUB_ORGANIZATION_SLUGS ...`
+
+`azd env set GRAFANA_TOKEN ...`

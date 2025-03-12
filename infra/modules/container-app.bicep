@@ -12,6 +12,8 @@ param containerAppsEnvironmentResourceId string
 param ingressExternal bool = false
 param cpu string
 param memory string
+param volumeMounts array = []
+param volumes array = []
 
 var appSettingsArray = filter(array(definition.settings), i => i.name != '')
 var secrets = map(filter(appSettingsArray, i => i.?secret != null), i => {
@@ -47,6 +49,7 @@ module containerApp 'br/public:avm/res/app/container-app:0.8.0' = {
           cpu: json(cpu)
           memory: memory
         }
+        volumeMounts: volumeMounts
         env: union([
           {
             name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
@@ -78,6 +81,7 @@ module containerApp 'br/public:avm/res/app/container-app:0.8.0' = {
     location: location
     tags: union(tags, { 'azd-service-name': name })
     ingressExternal: ingressExternal
+    volumes: volumes
   }
 }
 

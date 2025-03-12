@@ -2,15 +2,17 @@ param location string
 param abbrs object
 param resourceToken string
 param logAnalyticsWorkspaceResourceId string
+param storages array
 
 // Container apps environment
-module containerAppsEnvironment 'br/public:avm/res/app/managed-environment:0.4.5' = {
+module containerAppsEnvironment 'br/public:avm/res/app/managed-environment:0.10.0' = {
   name: 'container-apps-environment'
   params: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     name: '${abbrs.appManagedEnvironments}${resourceToken}'
     location: location
     zoneRedundant: false
+    storages: storages
   }
 }
 

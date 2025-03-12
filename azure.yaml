@@ -11,7 +11,7 @@ services:
         docker:
             path: Dockerfile
             remoteBuild: true
-    elasticsearch:
+    elastic-search:
         project: src/elasticsearch
         host: containerapp
         language: python
