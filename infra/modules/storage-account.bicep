@@ -12,7 +12,7 @@ var accessKey1Name = 'storageAccountKey1'
 module storageAccount 'br/public:avm/res/storage/storage-account:0.18.2' = {
   name: 'storageAccount'
   params: {
-    name: '${abbrs.storageAccounts}${resourceToken}'
+    name: '${abbrs.storageStorageAccounts}${resourceToken}'
     kind: 'BlobStorage'
     location: location
     skuName: 'Standard_LRS'
@@ -40,7 +40,6 @@ module storageAccount 'br/public:avm/res/storage/storage-account:0.18.2' = {
         }
       ]
     }
-    largeFileSharesState: 'Enabled'
   }
 }
 

@@ -25,7 +25,7 @@ var elasticSearchFileShareName = 'elastic-search'
 var grafanaFileShareName = 'grafana'
 
 module monitoring './modules/monitoring.bicep' = {
-  name: 'monitoring'
+  name: 'monitoringDeployment'
   params: {
     location: location
     tags: tags
@@ -35,7 +35,7 @@ module monitoring './modules/monitoring.bicep' = {
 }
 
 module identity './modules/user-assigned-managed-identity.bicep' = {
-  name: 'identity'
+  name: 'identityDeployment'
   params: {
     location: location
     abbrs: abbrs
@@ -44,18 +44,18 @@ module identity './modules/user-assigned-managed-identity.bicep' = {
 }
 
 module containerRegistry './modules/container-registry.bicep' = {
-  name: 'containerRegistry'
+  name: 'containerRegistryDeployment'
   params: {
     location: location
     tags: tags
     abbrs: abbrs
     resourceToken: resourceToken
-    principalId: principalId
+    principalId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_PRINCIPAL_ID
   }
 }
 
 module keyVault './modules/key-vault.bicep' = {
-  name: 'keyVault'
+  name: 'keyVaultDeployment'
   params: {
     location: location
     abbrs: abbrs
@@ -66,7 +66,7 @@ module keyVault './modules/key-vault.bicep' = {
 }
 
 module storageAccount './modules/storage-account.bicep' = {
-  name: 'storageAccount'
+  name: 'storageAccountDeployment'
   params: {
     location: location
     tags: tags
@@ -80,7 +80,7 @@ module storageAccount './modules/storage-account.bicep' = {
 }
 
 module containerAppsEnvironment './modules/container-app-environment.bicep' = {
-  name: 'containerAppsEnvironment'
+  name: 'containerAppsEnvironmentDeployment'
   params: {
     location: location
     abbrs: abbrs
@@ -90,7 +90,7 @@ module containerAppsEnvironment './modules/container-app-environment.bicep' = {
 }
 
 module cpuadUpdaterFetchLatestImage './modules/fetch-container-image.bicep' = {
-  name: 'cpuadUpdater-fetch-image'
+  name: 'cpuadUpdaterFetchImageDeployment'
   params: {
     exists: cpuAdUpdaterExists
     name: 'cpuadUpdater'
@@ -98,7 +98,7 @@ module cpuadUpdaterFetchLatestImage './modules/fetch-container-image.bicep' = {
 }
 
 module cpuadUpdater './modules/container-app.bicep' = {
-  name: 'cpuadUpdater'
+  name: 'cpuadUpdaterDeployment'
   params: {
     name: 'cpuadUpdater'
     location: location
@@ -117,7 +117,7 @@ module cpuadUpdater './modules/container-app.bicep' = {
 }
 
 module elasticSearchFetchLatestImage './modules/fetch-container-image.bicep' = {
-  name: 'elasticSearch-fetch-image'
+  name: 'elasticSearchFetchImageDeployment'
   params: {
     exists: elasticSearchExists
     name: 'elastic-search'
@@ -125,7 +125,7 @@ module elasticSearchFetchLatestImage './modules/fetch-container-image.bicep' = {
 }
 
 module elasticSearch './modules/container-app.bicep' = {
-  name: 'elasticSearch'
+  name: 'elasticSearchDeployment'
   params: {
     name: 'elastic-search'
     location: location
@@ -144,7 +144,7 @@ module elasticSearch './modules/container-app.bicep' = {
 }
 
 module grafanaFetchLatestImage './modules/fetch-container-image.bicep' = {
-  name: 'grafana-fetch-image'
+  name: 'grafanaFetchImageDeployment'
   params: {
     exists: grafanaExists
     name: 'grafana'
@@ -152,7 +152,7 @@ module grafanaFetchLatestImage './modules/fetch-container-image.bicep' = {
 }
 
 module grafana './modules/container-app.bicep' = {
-  name: 'grafana'
+  name: 'grafanaDeployment'
   params: {
     name: 'grafana'
     location: location

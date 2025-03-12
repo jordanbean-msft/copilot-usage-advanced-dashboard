@@ -17,7 +17,7 @@
       "grafanaExists": {
         "value": "${SERVICE_GRAFANA_RESOURCE_EXISTS=false}"
       },
-      "cpuUpdaterDefinition": {
+      "cpuAdUpdaterDefinition": {
         "value": {
           "settings": [
             {
