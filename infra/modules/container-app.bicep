@@ -6,7 +6,7 @@ param fetchLatestImage object
 param applicationInsightsConnectionString string
 param userAssignedManagedIdentityClientId string
 param userAssignedManagedIdentityResourceId string
-param port int
+param ingressTargetPort int
 param containerRegistryLoginServer string
 param containerAppsEnvironmentResourceId string
 param ingressExternal bool = false
@@ -30,7 +30,7 @@ module containerApp 'br/public:avm/res/app/container-app:0.8.0' = {
   name: name
   params: {
     name: name
-    ingressTargetPort: port
+    ingressTargetPort: ingressTargetPort
     scaleMinReplicas: 1
     scaleMaxReplicas: 10
     secrets: {

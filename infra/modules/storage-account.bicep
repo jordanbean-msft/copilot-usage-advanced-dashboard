@@ -21,6 +21,11 @@ module storageAccount 'br/public:avm/res/storage/storage-account:0.18.2' = {
       keyVaultResourceId: keyVaultResourceId
       accessKey1Name: accessKey1Name
     }
+    publicNetworkAccess: 'Enabled'
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: 'Allow'
+    }
     roleAssignments:[
       {
         principalId: userAssignedIdentityPrincipalId

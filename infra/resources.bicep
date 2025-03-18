@@ -108,6 +108,7 @@ module containerAppsEnvironment './modules/container-app-environment.bicep' = {
         storageAccountName: storageAccount.outputs.AZURE_STORAGE_ACCOUNT_NAME
       }
     ]
+    publicNetworkAccess: 'Enabled'
   }
 }
 
@@ -129,7 +130,7 @@ module cpuadUpdater './modules/container-app.bicep' = {
     applicationInsightsConnectionString: monitoring.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
     definition: cpuAdUpdaterDefinition
     fetchLatestImage: cpuadUpdaterFetchLatestImage
-    port: 80
+    ingressTargetPort: 80
     userAssignedManagedIdentityResourceId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
     userAssignedManagedIdentityClientId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
     tags: tags
@@ -146,8 +147,10 @@ module cpuadUpdater './modules/container-app.bicep' = {
         name: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
         storageName: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
         storageType: 'AzureFile'
+        mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
       }
     ]
+    ingressExternal: false
   }
 }
 
@@ -169,7 +172,7 @@ module elasticSearch './modules/container-app.bicep' = {
     applicationInsightsConnectionString: monitoring.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
     definition: elasticSearchDefinition
     fetchLatestImage: cpuadUpdaterFetchLatestImage
-    port: 9200
+    ingressTargetPort: 9200
     userAssignedManagedIdentityResourceId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
     userAssignedManagedIdentityClientId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
     tags: tags
@@ -186,8 +189,10 @@ module elasticSearch './modules/container-app.bicep' = {
         name: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
         storageName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
         storageType: 'AzureFile'
+        mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
       }
     ]
+    ingressExternal: false
   }
 }
 
@@ -209,7 +214,7 @@ module grafana './modules/container-app.bicep' = {
     applicationInsightsConnectionString: monitoring.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
     definition: grafanaDefinition
     fetchLatestImage: cpuadUpdaterFetchLatestImage
-    port: 3000
+    ingressTargetPort: 3000
     userAssignedManagedIdentityResourceId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
     userAssignedManagedIdentityClientId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
     tags: tags
@@ -227,6 +232,7 @@ module grafana './modules/container-app.bicep' = {
         name: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
         storageName: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
         storageType: 'AzureFile'
+        mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
       }
     ]
   }
