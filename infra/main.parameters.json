@@ -69,6 +69,14 @@
             {
               "name": "GF_LOG_LEVEL",
               "value": "debug"
+            },
+            {
+              "name": "GF_SECURITY_ADMIN_USER__FILE",
+              "value": "/run/secrets/admin_user"
+            },
+            {
+              "name": "GF_SECURITY_ADMIN_PASSWORD__FILE",
+              "value": "/run/secrets/admin_password"
             }
           ]
         }

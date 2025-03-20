@@ -4,13 +4,14 @@ name: copilot-usage-advanced-dashboard
 metadata:
     template: azd-init@1.13.0
 services:
-    cpuad-updater:
-        project: src/cpuad-updater
-        host: containerapp
-        language: python
-        docker:
-            path: Dockerfile
-            remoteBuild: true
+    # AZD doesn't support Container Jobs
+    # cpuad-updater:
+    #     project: src/cpuad-updater
+    #     host: containerapp
+    #     language: python
+    #     docker:
+    #         path: Dockerfile
+    #         remoteBuild: true
     elastic-search:
         project: src/elasticsearch
         host: containerapp
@@ -25,3 +26,15 @@ services:
         docker:
             path: Dockerfile
             remoteBuild: true
+hooks:
+    postprovision:
+    windows:
+        shell: pwsh
+        continueOnError: false
+        interactive: true
+        run: ./scripts/Deploy-AzureContainerAppJob.ps1
+    posix:
+        shell: sh
+        continueOnError: false
+        interactive: true
+        run: ./scripts/deploy-azure-container-app-job.sh

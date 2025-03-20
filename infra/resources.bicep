@@ -19,11 +19,22 @@ param grafanaDefinition object
 @description('Id of the user or app to assign application roles')
 param principalId string
 
+@secure()
+param grafanaUsername string
+
+@secure()
+param grafanaPassword string
+
 var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = uniqueString(subscription().id, resourceGroup().id, location)
 var elasticSearchFileShareName = 'elastic-search'
 var grafanaFileShareName = 'grafana'
 var cpuadUpdaterFileShareName = 'cpuad-updater'
+
+var grafanaUsernameSecretName = 'GRAFANA_USERNAME'
+var grafanaUsernameSecretValue = grafanaUsername != '' ? grafanaUsername : uniqueString('grafanaUsername', subscription().id, resourceGroup().id, location, resourceToken)
+var grafanaPasswordSecretName = 'GRAFANA_PASSWORD'
+var grafanaPasswordSecretValue = grafanaPassword != '' ? grafanaPassword : uniqueString('grafanaPassword', subscription().id, resourceGroup().id, location, resourceToken)
 
 module monitoring './modules/monitoring.bicep' = {
   name: 'monitoringDeployment'
@@ -63,6 +74,17 @@ module keyVault './modules/key-vault.bicep' = {
     resourceToken: resourceToken
     tags: tags
     userAssignedManagedIdentityPrincipalId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_PRINCIPAL_ID
+    principalId: principalId
+    secrets: [
+      {
+        name: grafanaUsernameSecretName
+        value: grafanaUsernameSecretValue
+      }
+      {
+        name: grafanaPasswordSecretName
+        value: grafanaPasswordSecretValue
+      }
+    ]
   }
 }
 
@@ -121,12 +143,11 @@ module cpuadUpdaterFetchLatestImage './modules/fetch-container-image.bicep' = {
   }
 }
 
-module cpuadUpdater './modules/container-app.bicep' = {
+module cpuadUpdater './modules/container-job.bicep' = {
   name: 'cpuadUpdaterDeployment'
   params: {
     name: 'cpuad-updater'
     location: location
-    ingressTargetPort: 80
     workloadProfileName: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_WORKLOAD_PROFILE_NAME
     containerRegistryLoginServer: containerRegistry.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
     containerAppsEnvironmentResourceId: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
@@ -245,3 +266,5 @@ output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerRegistry.outputs.AZUR
 output AZURE_RESOURCE_CPUAD_UPDATER_ID string = cpuadUpdater.outputs.AZURE_RESOURCE_CONTAINER_APP_ID
 output AZURE_RESOURCE_ELASTIC_SEARCH_ID string = elasticSearch.outputs.AZURE_RESOURCE_CONTAINER_APP_ID
 output AZURE_RESOURCE_GRAFANA_ID string = grafana.outputs.AZURE_RESOURCE_CONTAINER_APP_ID
+output AZURE_CONTAINER_APPS_ENVIRONMENT_NAME string = containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_NAME
+output AZURE_CONTAINER_REGISTRY_LOGIN_SERVER string = containerRegistry.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER

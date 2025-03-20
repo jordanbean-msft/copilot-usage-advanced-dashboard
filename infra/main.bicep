@@ -24,6 +24,12 @@ param grafanaDefinition object
 @description('Id of the user or app to assign application roles')
 param principalId string
 
+@secure()
+param grafanaUsername string = ''
+
+@secure()
+param grafanaPassword string = ''
+
 // Tags that should be applied to all resources.
 // 
 // Note that 'azd-service-name' tags should be applied separately to service host resources.
@@ -53,6 +59,8 @@ module resources 'resources.bicep' = {
     elasticSearchDefinition: elasticSearchDefinition
     grafanaExists: grafanaExists
     grafanaDefinition: grafanaDefinition
+    grafanaPassword: grafanaPassword
+    grafanaUsername: grafanaUsername
   }
 }
 
@@ -60,3 +68,5 @@ output AZURE_CONTAINER_REGISTRY_ENDPOINT string = resources.outputs.AZURE_CONTAI
 output AZURE_RESOURCE_CPUAD_UPDATER_ID string = resources.outputs.AZURE_RESOURCE_CPUAD_UPDATER_ID
 output AZURE_RESOURCE_ELASTIC_SEARCH_ID string = resources.outputs.AZURE_RESOURCE_ELASTIC_SEARCH_ID
 output AZURE_RESOURCE_GRAFANA_ID string = resources.outputs.AZURE_RESOURCE_GRAFANA_ID
+output AZURE_RESOURCE_GROUP_NAME string = rg.name
+output AZURE_CONTAINER_APPS_ENVIRONMENT_NAME string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_NAME
