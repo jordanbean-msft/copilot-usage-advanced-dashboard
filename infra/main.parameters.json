@@ -30,7 +30,7 @@
             },
             {
               "name": "ELASTICSEARCH_URL",
-              "value": "http://elastic-search:9200"
+              "value": "http://elastic-search:80"
             },
             {
               "name": "ORGANIZATION_SLUGS",
