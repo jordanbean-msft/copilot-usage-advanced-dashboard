@@ -86,6 +86,7 @@ module containerAppsEnvironment './modules/container-app-environment.bicep' = {
   params: {
     location: location
     abbrs: abbrs
+    workloadProfileType: 'D8'
     resourceToken: resourceToken
     logAnalyticsWorkspaceResourceId: monitoring.outputs.AZURE_RESOURCE_MONITORING_LOG_ANALYTICS_ID
     storages: [
@@ -125,12 +126,13 @@ module cpuadUpdater './modules/container-app.bicep' = {
   params: {
     name: 'cpuad-updater'
     location: location
+    ingressTargetPort: 80
+    workloadProfileName: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_WORKLOAD_PROFILE_NAME
     containerRegistryLoginServer: containerRegistry.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
     containerAppsEnvironmentResourceId: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
     applicationInsightsConnectionString: monitoring.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
     definition: cpuAdUpdaterDefinition
     fetchLatestImage: cpuadUpdaterFetchLatestImage
-    ingressTargetPort: 80
     userAssignedManagedIdentityResourceId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
     userAssignedManagedIdentityClientId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
     tags: tags
@@ -150,7 +152,6 @@ module cpuadUpdater './modules/container-app.bicep' = {
         mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
       }
     ]
-    ingressExternal: false
   }
 }
 
@@ -167,6 +168,7 @@ module elasticSearch './modules/container-app.bicep' = {
   params: {
     name: 'elastic-search'
     location: location
+    workloadProfileName: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_WORKLOAD_PROFILE_NAME
     containerRegistryLoginServer: containerRegistry.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
     containerAppsEnvironmentResourceId: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
     applicationInsightsConnectionString: monitoring.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
@@ -176,8 +178,8 @@ module elasticSearch './modules/container-app.bicep' = {
     userAssignedManagedIdentityResourceId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
     userAssignedManagedIdentityClientId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
     tags: tags
-    cpu: '1.0'
-    memory: '2.0Gi'
+    cpu: '4.0'
+    memory: '8.0Gi'
     volumeMounts: [
       {
         mountPath: '/usr/share/elasticsearch/data'
@@ -209,6 +211,7 @@ module grafana './modules/container-app.bicep' = {
   params: {
     name: 'grafana'
     location: location
+    workloadProfileName: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_WORKLOAD_PROFILE_NAME
     containerRegistryLoginServer: containerRegistry.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
     containerAppsEnvironmentResourceId: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
     applicationInsightsConnectionString: monitoring.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
