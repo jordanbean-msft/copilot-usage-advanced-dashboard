@@ -662,3 +662,5 @@ or
 `azd env set GITHUB_PAT ...`
 
 `azd env set GITHUB_ORGANIZATION_SLUGS ...`
+
+`azd up`
