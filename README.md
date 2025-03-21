@@ -241,7 +241,7 @@ Everything described in this article is based on the all-in-one architecture. In
 
 ## Architecture diagram
 
-![](image/image_oZJ-KGOxa5.png)
+![](image/architecture.drawio.png)
 
 ## Technology stack
 
