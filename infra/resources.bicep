@@ -286,11 +286,13 @@ var additionalGrafanaDefinition = {
         name: 'GRAFANA_USERNAME'
         value: grafanaUsernameSecretValue
         secret: true
+        path: 'admin_user'
       }
       {
         name: 'GRAFANA_PASSWORD'
         value: grafanaPasswordSecretValue
         secret: true
+        path: 'admin_password'
       }
     ],
     grafanaDefinition.settings

@@ -21,6 +21,7 @@ var secrets = map(filter(appSettingsArray, i => i.?secret != null), i => {
   name: i.name
   value: i.value
   secretRef: i.?secretRef ?? take(replace(replace(toLower(i.name), '_', '-'), '.', '-'), 32)
+  path: i.?path
 })
 var srcEnv = map(filter(appSettingsArray, i => i.?secret == null), i => {
   name: i.name
@@ -33,12 +34,17 @@ var additionalVolumeMounts = union(length(secrets) > 0 ? [
   }
 ] : [], volumeMounts)
 
+var secretVolumePaths = map(filter(secrets, i => i.secretRef != null && i.path != null), i => {
+  secretRef: i.secretRef
+  path: i.path
+})
+
 var additionalVolumes = union(length(secrets) > 0 ? [
   {
     name: 'secrets'
     storageType: 'Secret'
-  }
-] : [], volumes)
+    secrets: length(secretVolumePaths) > 0 ? secretVolumePaths : null
+  }]: [], volumes)
 
 module containerApp 'br/public:avm/res/app/container-app:0.8.0' = {
   name: name
