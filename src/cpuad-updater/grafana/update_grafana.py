@@ -150,7 +150,7 @@ def import_grafana_dashboard(dashboard_model, grafana_token):
     result = requests.post(
         f"{grafana_url.rstrip('/')}/api/dashboards/import",
         headers=headers,
-        json=template_content
+        data=template_content
     )
 
     if result.status_code != 200:
