@@ -27,14 +27,24 @@ services:
             path: Dockerfile
             remoteBuild: true
 hooks:
-    postprovision:
-    windows:
-        shell: pwsh
-        continueOnError: false
-        interactive: true
-        run: ./scripts/Deploy-AzureContainerAppJob.ps1
-    posix:
-        shell: sh
-        continueOnError: false
-        interactive: true
-        run: ./scripts/deploy-azure-container-app-job.sh
+    postdeploy:
+        - windows:
+          shell: pwsh
+          continueOnError: false
+          interactive: true
+          run: ./scripts/Deploy-AzureContainerAppJob-UpdateGrafana.ps1
+        - windows:
+          shell: pwsh
+          continueOnError: false
+          interactive: true
+          run: ./scripts/Deploy-AzureContainerAppJob.ps1
+        - posix:
+          shell: sh
+          continueOnError: false
+          interactive: true
+          run: ./scripts/deploy-azure-container-app-job.sh
+        - posix:
+          shell: sh
+          continueOnError: false
+          interactive: true
+          run: ./scripts/deploy-azure-container-app-job.sh

@@ -8,6 +8,10 @@ param cpuAdUpdaterExists bool
 @secure()
 param cpuAdUpdaterDefinition object
 
+param updateGrafanaExists bool
+@secure()
+param updateGrafanaDefinition object
+
 param elasticSearchExists bool
 @secure()
 param elasticSearchDefinition object
@@ -31,9 +35,9 @@ var elasticSearchFileShareName = 'elastic-search'
 var grafanaFileShareName = 'grafana'
 var cpuadUpdaterFileShareName = 'cpuad-updater'
 
-var grafanaUsernameSecretName = 'GRAFANA_USERNAME'
+var grafanaUsernameSecretName = 'grafana-username'
 var grafanaUsernameSecretValue = grafanaUsername != '' ? grafanaUsername : uniqueString('grafanaUsername', subscription().id, resourceGroup().id, location, resourceToken)
-var grafanaPasswordSecretName = 'GRAFANA_PASSWORD'
+var grafanaPasswordSecretName = 'grafana-password'
 var grafanaPasswordSecretValue = grafanaPassword != '' ? grafanaPassword : uniqueString('grafanaPassword', subscription().id, resourceGroup().id, location, resourceToken)
 
 module monitoring './modules/monitoring.bicep' = {
@@ -173,6 +177,54 @@ module cpuadUpdater './modules/container-job.bicep' = {
         mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
       }
     ]
+    cronExpression: '0 */1 * * *'
+    triggerType: 'Schedule'
+  }
+}
+
+module updateGrafanaFetchLatestImage './modules/fetch-container-image.bicep' = {
+  name: 'updateGrafanaFetchImageDeployment'
+  params: {
+    exists: updateGrafanaExists
+    name: 'update-grafana'
+  }
+}
+
+var additionalUpdateGrafanaDefinition = {
+  settings: union(
+    [
+      {
+        name: 'GRAFANA_USERNAME'
+        value: grafanaUsernameSecretValue
+        secret: true
+      }
+      {
+        name: 'GRAFANA_PASSWORD'
+        value: grafanaPasswordSecretValue
+        secret: true
+      }
+    ],
+    updateGrafanaDefinition.settings
+  )
+}
+
+module updateGrafana './modules/container-job.bicep' = {
+  name: 'updateGrafanaDeployment'
+  params: {
+    name: 'update-grafana'
+    location: location
+    workloadProfileName: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_WORKLOAD_PROFILE_NAME
+    containerRegistryLoginServer: containerRegistry.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
+    containerAppsEnvironmentResourceId: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
+    applicationInsightsConnectionString: monitoring.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
+    definition: additionalUpdateGrafanaDefinition
+    fetchLatestImage: updateGrafanaFetchLatestImage
+    userAssignedManagedIdentityResourceId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
+    userAssignedManagedIdentityClientId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
+    tags: tags
+    cpu: '1.0'
+    memory: '2.0Gi'
+    triggerType: 'Manual'
   }
 }
 
@@ -227,6 +279,24 @@ module grafanaFetchLatestImage './modules/fetch-container-image.bicep' = {
   }
 }
 
+var additionalGrafanaDefinition = {
+  settings: union(
+    [
+      {
+        name: 'GRAFANA_USERNAME'
+        value: grafanaUsernameSecretValue
+        secret: true
+      }
+      {
+        name: 'GRAFANA_PASSWORD'
+        value: grafanaPasswordSecretValue
+        secret: true
+      }
+    ],
+    grafanaDefinition.settings
+  )
+}
+
 module grafana './modules/container-app.bicep' = {
   name: 'grafanaDeployment'
   params: {
@@ -236,7 +306,7 @@ module grafana './modules/container-app.bicep' = {
     containerRegistryLoginServer: containerRegistry.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
     containerAppsEnvironmentResourceId: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
     applicationInsightsConnectionString: monitoring.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
-    definition: grafanaDefinition
+    definition: additionalGrafanaDefinition
     fetchLatestImage: cpuadUpdaterFetchLatestImage
     ingressTargetPort: 3000
     userAssignedManagedIdentityResourceId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
@@ -262,8 +332,10 @@ module grafana './modules/container-app.bicep' = {
   }
 }
 
-output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerRegistry.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
+output AZURE_RESOURCE_UPDATE_GRAFANA_ID string = updateGrafana.outputs.AZURE_RESOURCE_CONTAINER_APP_ID
+output AZURE_RESOURCE_UPDATE_GRAFANA_NAME string = updateGrafana.outputs.AZURE_RESOURCE_CONTAINER_APP_NAME
 output AZURE_RESOURCE_CPUAD_UPDATER_ID string = cpuadUpdater.outputs.AZURE_RESOURCE_CONTAINER_APP_ID
+output AZURE_RESOURCE_CPUAD_UPDATER_NAME string = cpuadUpdater.outputs.AZURE_RESOURCE_CONTAINER_APP_NAME
 output AZURE_RESOURCE_ELASTIC_SEARCH_ID string = elasticSearch.outputs.AZURE_RESOURCE_CONTAINER_APP_ID
 output AZURE_RESOURCE_GRAFANA_ID string = grafana.outputs.AZURE_RESOURCE_CONTAINER_APP_ID
 output AZURE_CONTAINER_APPS_ENVIRONMENT_NAME string = containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_NAME

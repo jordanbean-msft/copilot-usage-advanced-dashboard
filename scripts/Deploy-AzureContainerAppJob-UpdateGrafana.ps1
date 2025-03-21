@@ -52,11 +52,11 @@ if (-not [bool]::Parse($env:AZD_IS_PROVISIONED)) {
 
 $resourceGroup = $($env:AZURE_RESOURCE_GROUP_NAME)
 $environment = $($env:AZURE_CONTAINER_APPS_ENVIRONMENT_NAME)
-$jobName = $($env:AZURE_RESOURCE_CPUAD_UPDATER_NAME)
+$jobName = $($env:AZURE_RESOURCE_UPDATE_GRAFANA_NAME)
 $loginServer = $($env:AZURE_CONTAINER_REGISTRY_ENDPOINT)
 $tag = "azd"
 $tag += "-$(Get-Date -Format 'yyyyMMddHHmmss')"
-$image = "$($env:AZURE_CONTAINER_REGISTRY_ENDPOINT)/cpuad-updater-job:$($tag)"
+$image = "$($env:AZURE_CONTAINER_REGISTRY_ENDPOINT)/update-grafana-job:$($tag)"
 
 Write-Host "Resource Group: $resourceGroup" -ForegroundColor Green
 Write-Host "Environment: $environment" -ForegroundColor Green
@@ -64,7 +64,7 @@ Write-Host "Job Name: $jobName" -ForegroundColor Green
 Write-Host "Login Server: $loginServer" -ForegroundColor Green
 Write-Host "Image: $image" -ForegroundColor Green
 
-$projectDir = Resolve-Path "$PSScriptRoot/../src/cpuad-updater"
+$projectDir = Resolve-Path "$PSScriptRoot/../src/cpuad-updater/grafana"
 
 Write-Host "Project Directory: $projectDir" -ForegroundColor Green
 
@@ -101,6 +101,15 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "Container App Job update succeeded" -ForegroundColor Green
 
 Write-Host "Deployed Azure Container App Job successfully" -ForegroundColor Green
+
+Write-Host "Starting Azure Container App Job..." -ForegroundColor Green
+az containerapp job start --name $jobName --resource-group $resourceGroup
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Container App Job start failed" -ForegroundColor Red
+    exit $LASTEXITCODE
+}
+
+Write-Host "Container App Job started successfully" -ForegroundColor Green
 
 $portalUrl = "https://portal.azure.com/#@$($env:AZURE_TENANT_ID)/resource$($env:AZURE_CONTAINER_APP_JOB_URL)"
 

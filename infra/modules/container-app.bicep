@@ -26,6 +26,19 @@ var srcEnv = map(filter(appSettingsArray, i => i.?secret == null), i => {
   name: i.name
   value: i.value
 })
+var additionalVolumeMounts = union(length(secrets) > 0 ? [
+  {
+    volumeName: 'secrets'
+    mountPath: '/run/secrets'
+  }
+] : [], volumeMounts)
+
+var additionalVolumes = union(length(secrets) > 0 ? [
+  {
+    name: 'secrets'
+    storageType: 'Secret'
+  }
+] : [], volumes)
 
 module containerApp 'br/public:avm/res/app/container-app:0.8.0' = {
   name: name
@@ -51,7 +64,7 @@ module containerApp 'br/public:avm/res/app/container-app:0.8.0' = {
           cpu: json(cpu)
           memory: memory
         }
-        volumeMounts: volumeMounts
+        volumeMounts: additionalVolumeMounts
         env: union([
           {
             name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
@@ -83,7 +96,7 @@ module containerApp 'br/public:avm/res/app/container-app:0.8.0' = {
     location: location
     tags: union(tags, { 'azd-service-name': name })
     ingressExternal: ingressExternal
-    volumes: volumes
+    volumes: additionalVolumes
   }
 }
 

@@ -13,6 +13,8 @@ param memory string
 param volumeMounts array = []
 param volumes array = []
 param workloadProfileName string
+param cronExpression string = ''
+param triggerType string
 
 import {secretType} from 'br/public:avm/res/app/job:0.6.0'
 
@@ -31,10 +33,14 @@ module job 'br/public:avm/res/app/job:0.6.0' = {
   name: name
   params: {
     name: name
-    triggerType: 'Schedule'
-    scheduleTriggerConfig: {
-      cronExpression: '0 */1 * * *'
-    }
+    triggerType: triggerType
+    manualTriggerConfig: triggerType == 'Manual' ? {
+      parallelism: 1
+      replicaCompletionCount: 1
+    } : null
+    scheduleTriggerConfig: triggerType == 'Schedule' ?{
+      cronExpression: cronExpression
+    } : null
     workloadProfileName: workloadProfileName
     secrets: union([],
       map(secrets, secret => {
@@ -44,7 +50,7 @@ module job 'br/public:avm/res/app/job:0.6.0' = {
     
     containers: [
       {
-        image: fetchLatestImage.outputs.?containers[?0].?image ?? 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+        image: fetchLatestImage.outputs.?containers[?0].?image ?? 'mcr.microsoft.com/k8se/quickstart-jobs:latest'
         name: 'main'
         resources: {
           cpu: cpu
@@ -86,3 +92,4 @@ module job 'br/public:avm/res/app/job:0.6.0' = {
 }
 
 output AZURE_RESOURCE_CONTAINER_APP_ID string = job.outputs.resourceId
+output AZURE_RESOURCE_CONTAINER_APP_NAME string = job.outputs.name

@@ -8,6 +8,9 @@
       "location": {
         "value": "${AZURE_LOCATION}"
       },
+      "updateGrafanaExists": {
+        "value": "${SERVICE_UPDATEGRAFANA_RESOURCE_EXISTS=false}"
+      },
       "cpuAdUpdaterExists": {
         "value": "${SERVICE_CPUADUPDATER_RESOURCE_EXISTS=false}"
       },
@@ -16,6 +19,20 @@
       },
       "grafanaExists": {
         "value": "${SERVICE_GRAFANA_RESOURCE_EXISTS=false}"
+      },
+      "updateGrafanaDefinition": {
+        "value": {
+          "settings": [
+            {
+              "name": "ELASTICSEARCH_URL",
+              "value": "http://elastic-search:80"
+            },
+            {
+              "name": "GRAFANA_URL",
+              "value": "http://grafana:80"
+            }
+          ]
+        }
       },
       "cpuAdUpdaterDefinition": {
         "value": {
@@ -26,7 +43,7 @@
             },
             {
               "name": "EXECUTION_INTERVAL",
-              "value": "1"
+              "value": "0"
             },
             {
               "name": "ELASTICSEARCH_URL",

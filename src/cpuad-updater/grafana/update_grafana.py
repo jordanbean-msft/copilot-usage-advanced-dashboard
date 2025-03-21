@@ -3,6 +3,7 @@ import subprocess
 import requests
 import base64
 import re
+import time
 
 elasticsearch_url = os.getenv('ELASTICSEARCH_URL')
 
@@ -198,7 +199,7 @@ def import_grafana_dashboard(dashboard_model_path, grafana_token):
 
 if __name__ == "__main__":
 
-    poll_for_elasticsearch()
+    #poll_for_elasticsearch()
 
     poll_for_grafana()
 

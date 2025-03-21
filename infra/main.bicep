@@ -9,6 +9,10 @@ param environmentName string
 @description('Primary location for all resources')
 param location string
 
+param updateGrafanaExists bool
+@secure()
+param updateGrafanaDefinition object
+
 param cpuAdUpdaterExists bool
 @secure()
 param cpuAdUpdaterDefinition object
@@ -53,6 +57,8 @@ module resources 'resources.bicep' = {
     location: location
     tags: tags
     principalId: principalId
+    updateGrafanaExists: updateGrafanaExists
+    updateGrafanaDefinition: updateGrafanaDefinition
     cpuAdUpdaterExists: cpuAdUpdaterExists
     cpuAdUpdaterDefinition: cpuAdUpdaterDefinition
     elasticSearchExists: elasticSearchExists
@@ -64,9 +70,13 @@ module resources 'resources.bicep' = {
   }
 }
 
-output AZURE_CONTAINER_REGISTRY_ENDPOINT string = resources.outputs.AZURE_CONTAINER_REGISTRY_ENDPOINT
+output AZURE_RESOURCE_UPDATE_GRAFANA_ID string = resources.outputs.AZURE_RESOURCE_UPDATE_GRAFANA_ID
+output AZURE_RESOURCE_UPDATE_GRAFANA_NAME string = resources.outputs.AZURE_RESOURCE_UPDATE_GRAFANA_NAME
+output AZURE_CONTAINER_REGISTRY_ENDPOINT string = resources.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
 output AZURE_RESOURCE_CPUAD_UPDATER_ID string = resources.outputs.AZURE_RESOURCE_CPUAD_UPDATER_ID
+output AZURE_RESOURCE_CPUAD_UPDATER_NAME string = resources.outputs.AZURE_RESOURCE_CPUAD_UPDATER_NAME
 output AZURE_RESOURCE_ELASTIC_SEARCH_ID string = resources.outputs.AZURE_RESOURCE_ELASTIC_SEARCH_ID
 output AZURE_RESOURCE_GRAFANA_ID string = resources.outputs.AZURE_RESOURCE_GRAFANA_ID
 output AZURE_RESOURCE_GROUP_NAME string = rg.name
 output AZURE_CONTAINER_APPS_ENVIRONMENT_NAME string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_NAME
+output AZD_IS_PROVISIONED bool = true

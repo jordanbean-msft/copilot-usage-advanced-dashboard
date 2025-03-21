@@ -22,13 +22,7 @@ COPY requirements.txt /app/
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy mapping folder to the working directory
-COPY mapping /app/mapping
-
-# Copy the scripts to the working directory
-COPY log_utils.py /app/
-COPY main.py /app/
-COPY metrics_2_usage_convertor.py /app/
-COPY version /app/
+COPY . /app/
 
 # Create a non-root user and group
 RUN groupadd -g 1000 cpuadupdater && \
@@ -41,4 +35,4 @@ RUN chown -R cpuadupdater:cpuadupdater /app
 USER cpuadupdater
 
 # Run the command one time
-CMD ["python3", "main.py"]
+CMD ["python3", "update_grafana.py"]
