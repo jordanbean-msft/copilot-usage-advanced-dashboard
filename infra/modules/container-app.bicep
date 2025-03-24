@@ -15,6 +15,8 @@ param memory string
 param volumeMounts array = []
 param volumes array = []
 param workloadProfileName string
+param scaleMinReplicas int = 1
+param scaleMaxReplicas int = 2
 
 var appSettingsArray = filter(array(definition.settings), i => i.name != '')
 var secrets = map(filter(appSettingsArray, i => i.?secret != null), i => {
@@ -52,8 +54,8 @@ module containerApp 'br/public:avm/res/app/container-app:0.8.0' = {
     name: name
     workloadProfileName: workloadProfileName
     ingressTargetPort: ingressTargetPort
-    scaleMinReplicas: 1
-    scaleMaxReplicas: 10
+    scaleMinReplicas: scaleMinReplicas
+    scaleMaxReplicas: scaleMaxReplicas
     secrets: {
       secureList:  union([
       ],

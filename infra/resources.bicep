@@ -268,6 +268,8 @@ module elasticSearch './modules/container-app.bicep' = {
       }
     ]
     ingressExternal: false
+    scaleMinReplicas: 2 //have to run 2 replicas to have enough compute to run all the indexes
+    scaleMaxReplicas: 10
   }
 }
 

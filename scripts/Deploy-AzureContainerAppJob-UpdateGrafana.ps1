@@ -56,7 +56,7 @@ $jobName = $($env:AZURE_RESOURCE_UPDATE_GRAFANA_NAME)
 $loginServer = $($env:AZURE_CONTAINER_REGISTRY_ENDPOINT)
 $tag = "azd"
 $tag += "-$(Get-Date -Format 'yyyyMMddHHmmss')"
-$image = "$($env:AZURE_CONTAINER_REGISTRY_ENDPOINT)/update-grafana-job:$($tag)"
+$image = "$($env:AZURE_CONTAINER_REGISTRY_ENDPOINT)/copilot-usage-advanced-dashboard/update-grafana-job:$($tag)"
 
 Write-Host "Resource Group: $resourceGroup" -ForegroundColor Green
 Write-Host "Environment: $environment" -ForegroundColor Green

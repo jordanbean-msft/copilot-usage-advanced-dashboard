@@ -192,7 +192,7 @@ class GitHubEnterpriseManager:
             logger.info(f"Fetched {len(all_orgs)} organizations")
             return all_orgs
         else:
-            print(f'request failed, error code：{response.status_code}')
+            print(f'request failed, error code: {response.status_code}')
             logger.error(f"Request failed with status code: {response.status_code}")
             return {}
 
@@ -366,7 +366,7 @@ class GitHubOrganizationManager:
             for seat in seats:
                 # assignee sub dict
                 seat['assignee_login'] = seat.get('assignee', {}).get('login')
-                # if organization_slug is CopilotNext, then 把assignee_login中的每一个字母都往后移一位
+                # if organization_slug is CopilotNext, then assignee_login
                 if self.organization_slug == 'CopilotNext':
                     seat['assignee_login'] = ''.join([chr(ord(c) + 1) for c in seat['assignee_login']])
 
@@ -394,7 +394,7 @@ class GitHubOrganizationManager:
                 seat['days_since_last_activity'] = days_since_last_activity
 
                 datas.append(seat)
-            page += 1  # 获取下一页数据
+            page += 1
 
         dict_save_to_json_file(datas, f'{self.organization_slug}_seat_assignments', save_to_json=save_to_json)
         logger.info(f"Fetching seat assignments for {self.slug_type}: {self.organization_slug}")
@@ -419,7 +419,7 @@ class GitHubOrganizationManager:
             if not page_teams:
                 break
             teams.extend(page_teams)
-            page += 1  # 获取下一页数据
+            page += 1
         
         teams = self._add_fullpath_slug(teams)
         teams = assign_position_in_tree(teams)
