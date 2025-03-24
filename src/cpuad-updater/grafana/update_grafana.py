@@ -196,7 +196,7 @@ def add_grafana_data_sources(grafana_token):
             "name": name,
             "type": "elasticsearch",
             "access": "proxy",
-            "url": f"http://{elasticsearch_url.rstrip('/')}",
+            "url": f"{elasticsearch_url.rstrip('/')}",
             "basicAuth": False,
             "withCredentials": False,
             "isDefault": False,
@@ -249,7 +249,7 @@ def generate_grafana_model(grafana_token):
             "Authorization": f"Bearer {grafana_token}",
             "X-GitHub-Api-Version": "2022-11-28"
         }
-    response = requests.get(grafana_url.rstrip('/')+'/api/datasources', headers=headers)
+    response = requests.get(f'{grafana_url.rstrip('/')}/api/datasources', headers=headers)
 
     if response.status_code != 200:
         logging.error(f"Failed to get data sources: {response.status_code} - {response.text}")
