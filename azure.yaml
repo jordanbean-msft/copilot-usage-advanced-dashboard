@@ -27,14 +27,9 @@ services:
             path: Dockerfile
             remoteBuild: true
 hooks:
+  # This script gets my IP address
     postdeploy:
-      - windows:
-            run: ./scripts/Deploy-AzureContainerAppJob-UpdateGrafana.ps1
-            shell: pwsh
-            continueOnError: false
-            interactive: true
-      - windows:
-            run: ./scripts/Deploy-AzureContainerAppJob.ps1
-            shell: pwsh
-            continueOnError: false
-            interactive: true
+        shell: pwsh
+        run: ./scripts/Deploy-AzureContainerAppJob-UpdateGrafana.ps1; ./scripts/Deploy-AzureContainerAppJob.ps1
+        continueOnError: false
+        interactive: true
