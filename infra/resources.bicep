@@ -257,6 +257,12 @@ module elasticSearch './modules/container-app.bicep' = {
       {
         mountPath: '/usr/share/elasticsearch/data'
         volumeName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+        subPath: 'data'
+      }
+      {
+        mountPath: '/usr/share/elasticsearch/logs'
+        volumeName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+        subPath: 'logs'
       }
     ]
     volumes: [

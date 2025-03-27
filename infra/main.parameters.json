@@ -57,11 +57,6 @@
               "name": "GITHUB_PAT",
               "value": "${GITHUB_PAT}",
               "secret": true
-            },
-            {
-              "name": "GRAFANA_TOKEN",
-              "value": "${GRAFANA_TOKEN}",
-              "secret": true
             }
           ]
         }
