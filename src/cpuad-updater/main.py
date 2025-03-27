@@ -532,7 +532,10 @@ class ElasticsearchManager:
     def __init__(self, primary_key=Paras.primary_key):
         self.primary_key = primary_key
         self.es = Elasticsearch(
-            Paras.elasticsearch_url
+            hosts = Paras.elasticsearch_url,
+            max_retries= 10,
+            retry_on_timeout= True,
+            request_timeout= 30,
         )
         self.check_and_create_indexes()
 
