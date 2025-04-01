@@ -7,6 +7,7 @@ param elasticSearchFileShareName string
 param grafanaFileShareName string
 param cpuadUpdaterFileShareName string
 param keyVaultResourceId string
+param containerAppsVirtualNetworkId string
 
 var accessKey1Name = 'storageAccountKey1'
 
@@ -15,16 +16,23 @@ module storageAccount 'br/public:avm/res/storage/storage-account:0.18.2' = {
   params: {
     name: '${abbrs.storageStorageAccounts}${resourceToken}'
     location: location
-    skuName: 'Standard_LRS'
+    skuName: 'Premium_LRS'
+    kind: 'FileStorage'
     tags: tags
     secretsExportConfiguration: {
       keyVaultResourceId: keyVaultResourceId
       accessKey1Name: accessKey1Name
     }
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: 'Disabled'
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: 'Allow'
+      virtualNetworkRules: [
+        {
+          id: containerAppsVirtualNetworkId
+          action: 'Allow'
+        }
+      ]
     }
     roleAssignments:[
       {
@@ -38,17 +46,21 @@ module storageAccount 'br/public:avm/res/storage/storage-account:0.18.2' = {
         {
           name: elasticSearchFileShareName
           quota: 1024
+          enabledProtocols: 'NFS'
         }
         {
           name: grafanaFileShareName
           quota: 1024
+          enabledProtocols: 'NFS'
         }
         {
           name: cpuadUpdaterFileShareName
           quota: 1024
+          enabledProtocols: 'NFS'
         }
       ]
     }
+    supportsHttpsTrafficOnly: false
   }
 }
 

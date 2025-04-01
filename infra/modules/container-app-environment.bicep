@@ -5,6 +5,7 @@ param logAnalyticsWorkspaceResourceId string
 param storages array
 param publicNetworkAccess string
 param workloadProfileType string
+param infrastructureSubnetId string
 
 var workloadProfileName = 'default'
 
@@ -18,6 +19,7 @@ module containerAppsEnvironment 'br/public:avm/res/app/managed-environment:0.10.
     zoneRedundant: false
     storages: storages
     publicNetworkAccess: publicNetworkAccess
+    infrastructureSubnetId: infrastructureSubnetId
     workloadProfiles: [
       {
         name: workloadProfileName

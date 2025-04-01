@@ -22,6 +22,9 @@
       },
       "updateGrafanaDefinition": {
         "value": {
+          "cpu": "1.0",
+          "memory": "2.0Gi",
+          "triggerType": "Manual",
           "settings": [
             {
               "name": "ELASTICSEARCH_URL",
@@ -36,6 +39,10 @@
       },
       "cpuAdUpdaterDefinition": {
         "value": {
+          "cpu": "1.0",
+          "memory": "2.0Gi",
+          "triggerType": "Schedule",
+          "cronExpression": "0 */1 * * *",
           "settings": [
             {
               "name": "LOG_PATH",
@@ -63,20 +70,24 @@
       },
       "elasticSearchDefinition": {
         "value": {
+          "cpu": "4.0",
+          "memory": "8.0Gi",
           "settings": [
             {
               "name": "xpack.security.enabled",
               "value": "false"
             },
             {
-              "name": "ES_JAVA_OPTS",
-              "value": "-Xms4g -Xmx4g"
+              "name": "discovery.type",
+              "value": "single-node"
             }
           ]
         }
       },
       "grafanaDefinition": {
         "value": {
+          "cpu": "1.0",
+          "memory": "2.0Gi",
           "settings": [
             {
               "name": "GF_LOG_LEVEL",

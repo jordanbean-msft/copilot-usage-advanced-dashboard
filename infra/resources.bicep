@@ -92,6 +92,15 @@ module keyVault './modules/key-vault.bicep' = {
   }
 }
 
+module virtualNetwork './modules/virtual-network.bicep' = {
+  name: 'virtualNetworkDeployment'
+  params: {
+    location: location
+    abbrs: abbrs
+    resourceToken: resourceToken
+  }
+}
+
 module storageAccount './modules/storage-account.bicep' = {
   name: 'storageAccountDeployment'
   params: {
@@ -104,6 +113,7 @@ module storageAccount './modules/storage-account.bicep' = {
     cpuadUpdaterFileShareName: cpuadUpdaterFileShareName
     userAssignedIdentityPrincipalId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_PRINCIPAL_ID
     keyVaultResourceId: keyVault.outputs.AZURE_RESOURCE_KEY_VAULT_ID
+    containerAppsVirtualNetworkId: virtualNetwork.outputs.AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ID
   }
 }
 
@@ -115,21 +125,22 @@ module containerAppsEnvironment './modules/container-app-environment.bicep' = {
     workloadProfileType: 'D8'
     resourceToken: resourceToken
     logAnalyticsWorkspaceResourceId: monitoring.outputs.AZURE_RESOURCE_MONITORING_LOG_ANALYTICS_ID
+    infrastructureSubnetId: virtualNetwork.outputs.AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ID
     storages: [
       {
-        kind: 'SMB'
+        kind: 'NFS'
         accessMode: 'ReadWrite'
         shareName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
         storageAccountName: storageAccount.outputs.AZURE_STORAGE_ACCOUNT_NAME
       }
       {
-        kind: 'SMB'
+        kind: 'NFS'
         accessMode: 'ReadWrite'
         shareName: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
         storageAccountName: storageAccount.outputs.AZURE_STORAGE_ACCOUNT_NAME
       }
       {
-        kind: 'SMB'
+        kind: 'NFS'
         accessMode: 'ReadWrite'
         shareName: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
         storageAccountName: storageAccount.outputs.AZURE_STORAGE_ACCOUNT_NAME
@@ -139,7 +150,7 @@ module containerAppsEnvironment './modules/container-app-environment.bicep' = {
   }
 }
 
-module cpuadUpdaterFetchLatestImage './modules/fetch-container-image.bicep' = {
+module cpuadUpdaterFetchLatestImage './modules/fetch-container-job-image.bicep' = {
   name: 'cpuadUpdaterFetchImageDeployment'
   params: {
     exists: cpuAdUpdaterExists
@@ -161,8 +172,8 @@ module cpuadUpdater './modules/container-job.bicep' = {
     userAssignedManagedIdentityResourceId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
     userAssignedManagedIdentityClientId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
     tags: tags
-    cpu: '1.0'
-    memory: '2.0Gi'
+    cpu: cpuAdUpdaterDefinition.cpu
+    memory: cpuAdUpdaterDefinition.memory
     volumeMounts: [
       {
         mountPath: '/app/logs'
@@ -173,16 +184,16 @@ module cpuadUpdater './modules/container-job.bicep' = {
       {
         name: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
         storageName: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
-        storageType: 'AzureFile'
+        storageType: 'NfsAzureFile'
         mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
       }
     ]
-    cronExpression: '0 */1 * * *'
-    triggerType: 'Schedule'
+    cronExpression: cpuAdUpdaterDefinition.cronExpression
+    triggerType: cpuAdUpdaterDefinition.triggerType
   }
 }
 
-module updateGrafanaFetchLatestImage './modules/fetch-container-image.bicep' = {
+module updateGrafanaFetchLatestImage './modules/fetch-container-job-image.bicep' = {
   name: 'updateGrafanaFetchImageDeployment'
   params: {
     exists: updateGrafanaExists
@@ -222,9 +233,9 @@ module updateGrafana './modules/container-job.bicep' = {
     userAssignedManagedIdentityResourceId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
     userAssignedManagedIdentityClientId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
     tags: tags
-    cpu: '1.0'
-    memory: '2.0Gi'
-    triggerType: 'Manual'
+    cpu: updateGrafanaDefinition.cpu
+    memory: updateGrafanaDefinition.memory
+    triggerType: updateGrafanaDefinition.triggerType
   }
 }
 
@@ -251,8 +262,8 @@ module elasticSearch './modules/container-app.bicep' = {
     userAssignedManagedIdentityResourceId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
     userAssignedManagedIdentityClientId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
     tags: tags
-    cpu: '4.0'
-    memory: '8.0Gi'
+    cpu: elasticSearchDefinition.cpu
+    memory: elasticSearchDefinition.memory
     volumeMounts: [
       {
         mountPath: '/usr/share/elasticsearch/data'
@@ -269,7 +280,7 @@ module elasticSearch './modules/container-app.bicep' = {
       {
         name: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
         storageName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
-        storageType: 'AzureFile'
+        storageType: 'NfsAzureFile'
         mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
       }
     ]
@@ -321,8 +332,8 @@ module grafana './modules/container-app.bicep' = {
     userAssignedManagedIdentityClientId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
     tags: tags
     ingressExternal: true
-    cpu: '1.0'
-    memory: '2.0Gi'
+    cpu: grafanaDefinition.cpu
+    memory: grafanaDefinition.memory
     volumeMounts: [
       {
         mountPath: '/var/lib/grafana'
@@ -333,7 +344,7 @@ module grafana './modules/container-app.bicep' = {
       {
         name: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
         storageName: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
-        storageType: 'AzureFile'
+        storageType: 'NfsAzureFile'
         mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
       }
     ]
