@@ -16,15 +16,6 @@ if (-not $script:azCmd) {
     throw "Error: 'az' command is not found. Please ensure you have 'az' installed. For installation instructions, visit: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli"
 }
 
-if (-not $script:dockerCmd) {
-    $script:dockerCmd = Get-Command "docker" -ErrorAction SilentlyContinue
-}
-
-# Check if 'docker' command is available
-if (-not $script:dockerCmd) {
-    throw "Error: 'docker' command is not found. Please ensure you have 'docker' installed. For installation instructions, visit: https://docs.docker.com/get-docker/"
-}
-
 Write-Host ""
 Write-Host "Loading azd .env file from current environment" -ForegroundColor Green
 Write-Host ""
@@ -57,40 +48,22 @@ $loginServer = $($env:AZURE_CONTAINER_REGISTRY_ENDPOINT)
 $tag = "azd"
 $tag += "-$(Get-Date -Format 'yyyyMMddHHmmss')"
 $image = "$($env:AZURE_CONTAINER_REGISTRY_ENDPOINT)/copilot-usage-advanced-dashboard/update-grafana-job:$($tag)"
+$projectDir = Resolve-Path "$PSScriptRoot/../src/cpuad-updater/grafana"
 
 Write-Host "Resource Group: $resourceGroup" -ForegroundColor Green
 Write-Host "Environment: $environment" -ForegroundColor Green
 Write-Host "Job Name: $jobName" -ForegroundColor Green
 Write-Host "Login Server: $loginServer" -ForegroundColor Green
 Write-Host "Image: $image" -ForegroundColor Green
-
-$projectDir = Resolve-Path "$PSScriptRoot/../src/cpuad-updater/grafana"
-
 Write-Host "Project Directory: $projectDir" -ForegroundColor Green
 
-Write-Host "Building Docker image..." -ForegroundColor Green
-docker build -t "$image" "$projectDir"
+Write-Host "Building and pushing Docker image using Azure Container Registry tasks..." -ForegroundColor Green
+az acr build --registry $loginServer --image $image --file "$projectDir/Dockerfile" "$projectDir"
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Docker build failed" -ForegroundColor Red
+    Write-Host "ACR build failed" -ForegroundColor Red
     exit $LASTEXITCODE
 }
-Write-Host "Docker build succeeded" -ForegroundColor Green
-
-Write-Host "Logging into Azure Container Registry..." -ForegroundColor Green
-az acr login --name $loginServer
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "ACR login failed" -ForegroundColor Red
-    exit $LASTEXITCODE
-}
-Write-Host "ACR login succeeded" -ForegroundColor Green
-
-Write-Host "Pushing Docker image..." -ForegroundColor Green
-docker push $image
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Docker push failed" -ForegroundColor Red
-    exit $LASTEXITCODE
-}
-Write-Host "Docker push succeeded" -ForegroundColor Green
+Write-Host "ACR build and push succeeded" -ForegroundColor Green
 
 Write-Host "Updating Azure Container App Job..." -ForegroundColor Green
 az containerapp job update --name $jobName --resource-group $resourceGroup --image $image

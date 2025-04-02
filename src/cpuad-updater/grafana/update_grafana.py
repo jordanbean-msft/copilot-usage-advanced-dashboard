@@ -35,6 +35,8 @@ grafana_password = os.getenv('GRAFANA_PASSWORD')
 if not grafana_password:
     raise ValueError("Please set the GRAFANA_PASSWORD environment variable")
 
+service_account_name = "sa-for-cpuad"
+
 def poll_for_elasticsearch():
     """
     Polls the Elasticsearch server until it is reachable.
@@ -69,40 +71,76 @@ def poll_for_grafana():
             logging.error(f"Grafana is not reachable: {e}")
         time.sleep(5)
 
-def create_grafana_service_account():
+def get_existing_grafana_service_account_id(headers):
+    """
+    Retrieves the existing Grafana service account.
+
+    Returns:
+        The service account ID if it exists, None otherwise.
+    """
+    result = requests.get(
+        f"{grafana_url.rstrip('/')}/api/serviceaccounts/search?query={service_account_name}",
+        headers=headers
+    )
+
+    if result.status_code != 200:
+        logging.error(f"Failed to retrieve service accounts: {result.status_code} - {result.text}")
+        raise ValueError(f"Failed to retrieve service accounts - {result.status_code} - {result.text}")
+
+    service_accounts = result.json().get('serviceAccounts', [])
+
+    if not service_accounts:
+        logging.info("No existing service accounts found.")
+        return None
+    
+    for account in service_accounts:
+        if account.get('name') == service_account_name:
+            logging.info(f"Service account {service_account_name} already exists.")
+            return account.get('id')
+        
+    logging.info(f"Service account {service_account_name} not found.")
+    return None
+
+def delete_existing_grafana_service_account(headers, service_account_id):
+    """
+    Deletes the existing Grafana service account.
+
+    Args:
+        service_account_id: The ID of the service account to delete.
+    """    
+    result = requests.delete(
+        f"{grafana_url.rstrip('/')}/api/serviceaccounts/{service_account_id}",
+        headers=headers
+    )
+
+    if result.status_code != 200:
+        logging.error(f"Failed to delete service account: {result.status_code} - {result.text}")
+        raise ValueError(f"Failed to delete service account - {result.status_code} - {result.text}")
+
+    logging.info("Service account deleted successfully.")
+    
+def setup_grafana_service_account():
     """
     Creates a Grafana service account using basic authentication.
 
     Returns:
         A dictionary containing the headers for the request.
     """
-    credentials = f"{grafana_username}:{grafana_password}"
-    encoded_credentials = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
+    headers = get_grafana_basic_credentials_headers()
 
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "Authorization": f"Basic {encoded_credentials}"
-    }
+    # Check if the service account already exists
+    existing_service_account_id = get_existing_grafana_service_account_id(headers=headers)
 
-    result = requests.post(
-        f"{grafana_url.rstrip('/')}/api/serviceaccounts",
-        headers=headers,
-        json={
-            "name": "sa-for-cpuad",
-            "role": "Admin",
-            "isDisabled": False
-        }
-    )
+    if existing_service_account_id:
+        delete_existing_grafana_service_account(headers=headers, service_account_id=existing_service_account_id)
 
-    if result.status_code != 201:
-        logging.error(f"Failed to create service account: {result.status_code} - {result.text}")
-        raise ValueError(f"Failed to create service account - {result.status_code} - {result.text}")
+    service_account_id = create_service_account(headers=headers)
     
-    logging.info(f"Service account {result.json().get('name')} created successfully.")
+    grafana_api_token = create_grafana_access_token(headers=headers, service_account_id=service_account_id)
 
-    service_account_id = result.json().get('id')
-    
+    return grafana_api_token
+
+def create_grafana_access_token(headers, service_account_id):
     result = requests.post(
         f"{grafana_url.rstrip('/')}/api/serviceaccounts/{service_account_id}/tokens",
         headers=headers,
@@ -124,9 +162,39 @@ def create_grafana_service_account():
         logging.error("Failed to retrieve Grafana API token")
         raise ValueError("Failed to retrieve Grafana API token")
 
-    os.environ['GRAFANA_TOKEN'] = grafana_api_token
-
     return grafana_api_token
+
+def get_grafana_basic_credentials_headers():
+    credentials = f"{grafana_username}:{grafana_password}"
+    encoded_credentials = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
+
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": f"Basic {encoded_credentials}"
+    }
+    
+    return headers
+
+def create_service_account(headers):
+    result = requests.post(
+        f"{grafana_url.rstrip('/')}/api/serviceaccounts",
+        headers=headers,
+        json={
+            "name": service_account_name,
+            "role": "Admin",
+            "isDisabled": False
+        }
+    )
+
+    if result.status_code != 201:
+        logging.error(f"Failed to create service account: {result.status_code} - {result.text}")
+        raise ValueError(f"Failed to create service account - {result.status_code} - {result.text}")
+    
+    logging.info(f"Service account {result.json().get('name')} created successfully.")
+
+    service_account_id = result.json().get('id')
+    return service_account_id
 
 def import_grafana_dashboard(dashboard_model, grafana_token):
     """
@@ -224,10 +292,10 @@ def add_grafana_data_sources(grafana_token):
                 logging.info(f"Data source {ds['name']} already exists. Proceeding...")
                 continue
                    
-            print(f"Failed to add data source: {ds['name']}. Status code: {response.status_code}, Response: {response.text}")
+            logging.error(f"Failed to add data source: {ds['name']}. Status code: {response.status_code}, Response: {response.text}")
             raise ValueError(f"Failed to add data source - {response.status_code} - {response.text}")
             
-        print(f"Successfully added data source: {ds['name']}")
+        logging.info(f"Successfully added data source: {ds['name']}")
 
 def generate_grafana_model(grafana_token):
     data_source_names = [
@@ -286,7 +354,7 @@ if __name__ == "__main__":
 
     poll_for_grafana()
 
-    grafana_token = create_grafana_service_account()
+    grafana_token = setup_grafana_service_account()
 
     logging.info("Adding Grafana data sources...")
     

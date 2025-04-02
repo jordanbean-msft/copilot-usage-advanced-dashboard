@@ -23,10 +23,10 @@ module storageAccount 'br/public:avm/res/storage/storage-account:0.18.2' = {
       keyVaultResourceId: keyVaultResourceId
       accessKey1Name: accessKey1Name
     }
-    publicNetworkAccess: 'Disabled'
+    publicNetworkAccess: 'Enabled'
     networkAcls: {
       bypass: 'AzureServices'
-      defaultAction: 'Allow'
+      defaultAction: 'Deny'
       virtualNetworkRules: [
         {
           id: containerAppsVirtualNetworkId

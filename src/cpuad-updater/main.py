@@ -9,7 +9,6 @@ import time
 from metrics_2_usage_convertor import convert_metrics_to_usage
 import traceback
 
-
 class Paras:
 
     @staticmethod
@@ -565,7 +564,6 @@ class ElasticsearchManager:
         except NotFoundError:
             self.es.index(index=index_name, id=doc_id, document=data)
             logger.info(f'[created] to [{index_name}]: {data}') 
- 
 
 def main(organization_slug):
     logger.info(f"==========================================================================================================")
@@ -646,22 +644,13 @@ def main(organization_slug):
         
         logger.info(f"Data processing completed for team: {team_slug}")
 
-
-
 if __name__ == '__main__':
-    
-    while True:
-        try:
-            # Split Paras.organization_slugs and process each organization, remember to remove spaces after splitting
-            organization_slugs = Paras.organization_slugs.split(',')
-            for organization_slug in organization_slugs:
-                main(organization_slug.strip())
-            logger.info(f"Sleeping for {Paras.execution_interval} hours before next execution...")
-            for _ in range(Paras.execution_interval * 3600 // 3600):
-                logger.info("Heartbeat: still running...")
-                time.sleep(3600)
-        except Exception as e:
-            logger.error(f"An error occurred: {traceback.format_exc(e)}")
-            time.sleep(5)
-        finally:
-            logger.info('-----------------Finished-----------------')
+    try:
+        # Split Paras.organization_slugs and process each organization, remember to remove spaces after splitting
+        organization_slugs = Paras.organization_slugs.split(',')
+        for organization_slug in organization_slugs:
+            main(organization_slug.strip())
+    except Exception as e:
+        logger.error(f"An error occurred: {traceback.format_exc(e)}")
+    finally:
+        logger.info('-----------------Finished-----------------')

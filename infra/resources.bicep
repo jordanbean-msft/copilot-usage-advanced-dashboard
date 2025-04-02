@@ -147,6 +147,7 @@ module containerAppsEnvironment './modules/container-app-environment.bicep' = {
       }
     ]
     publicNetworkAccess: 'Enabled'
+    appInsightsConnectionString: monitoring.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
   }
 }
 

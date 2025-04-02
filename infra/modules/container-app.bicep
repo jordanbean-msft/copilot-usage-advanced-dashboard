@@ -104,7 +104,7 @@ module containerApp 'br/public:avm/res/app/container-app:0.8.0' = {
     location: location
     tags: union(tags, { 'azd-service-name': name })
     ingressExternal: ingressExternal
-    volumes: additionalVolumes
+    volumes: additionalVolumes    
   }
 }
 

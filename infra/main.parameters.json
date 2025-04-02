@@ -49,10 +49,6 @@
               "value": "logs"
             },
             {
-              "name": "EXECUTION_INTERVAL",
-              "value": "0"
-            },
-            {
               "name": "ELASTICSEARCH_URL",
               "value": "http://elastic-search:80"
             },

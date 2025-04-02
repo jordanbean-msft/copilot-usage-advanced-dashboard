@@ -6,6 +6,7 @@ param storages array
 param publicNetworkAccess string
 param workloadProfileType string
 param infrastructureSubnetId string
+param appInsightsConnectionString string
 
 var workloadProfileName = 'default'
 
@@ -28,6 +29,15 @@ module containerAppsEnvironment 'br/public:avm/res/app/managed-environment:0.10.
         maximumCount: 10
       }
     ]
+    appInsightsConnectionString: appInsightsConnectionString
+    openTelemetryConfiguration:{
+      tracesConfiguration: {
+        destinations: ['appInsights']
+      }
+      logsConfiguration: {
+        destinations: ['appInsights']
+      }
+    }
   }
 }
 

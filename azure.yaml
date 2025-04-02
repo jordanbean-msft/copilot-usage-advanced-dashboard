@@ -1,17 +1,5 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
-
 name: copilot-usage-advanced-dashboard
-metadata:
-    template: azd-init@1.13.0
 services:
-    # AZD doesn't support Container Jobs
-    # cpuad-updater:
-    #     project: src/cpuad-updater
-    #     host: containerapp
-    #     language: python
-    #     docker:
-    #         path: Dockerfile
-    #         remoteBuild: true
     elastic-search:
         project: src/elasticsearch
         host: containerapp
@@ -27,9 +15,14 @@ services:
             path: Dockerfile
             remoteBuild: true
 hooks:
-  # This script gets my IP address
     postdeploy:
-        shell: pwsh
-        run: ./scripts/Deploy-AzureContainerAppJob-UpdateGrafana.ps1; ./scripts/Deploy-AzureContainerAppJob.ps1
-        continueOnError: false
-        interactive: true
+        windows:
+            shell: pwsh
+            run: ./scripts/Deploy-AzureContainerAppJob-UpdateGrafana.ps1; ./scripts/Deploy-AzureContainerAppJob-CpuAdUpdater.ps1
+            continueOnError: false
+            interactive: true
+        posix:
+            shell: sh
+            run: ./scripts/deploy-azure-container-app-job-update-grafana.sh; ./scripts/deploy-azure-container-app-job-cpuad-updater.sh
+            continueOnError: false
+            interactive: true
