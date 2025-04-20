@@ -1,4 +1,4 @@
-targetScope = 'subscription'
+targetScope = 'resourceGroup'
 
 @minLength(1)
 @maxLength(64)
@@ -47,14 +47,14 @@ var tags = {
 }
 
 // Organize resources in a resource group
-resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: 'rg-${environmentName}'
-  location: location
-  tags: tags
-}
+// resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+//   name: 'rg-${environmentName}'
+//   location: location
+//   tags: tags
+// }
 
 module resources 'resources.bicep' = {
-  scope: rg
+  scope: resourceGroup()
   name: 'resources'
   params: {
     location: location
@@ -81,7 +81,7 @@ output AZURE_RESOURCE_CPUAD_UPDATER_ID string = resources.outputs.AZURE_RESOURCE
 output AZURE_RESOURCE_CPUAD_UPDATER_NAME string = resources.outputs.AZURE_RESOURCE_CPUAD_UPDATER_NAME
 output AZURE_RESOURCE_ELASTIC_SEARCH_ID string = resources.outputs.AZURE_RESOURCE_ELASTIC_SEARCH_ID
 output AZURE_RESOURCE_GRAFANA_ID string = resources.outputs.AZURE_RESOURCE_GRAFANA_ID
-output AZURE_RESOURCE_GROUP_NAME string = rg.name
+output AZURE_RESOURCE_GROUP_NAME string = resourceGroup().name
 output AZURE_CONTAINER_APPS_ENVIRONMENT_NAME string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_NAME
 output AZD_IS_PROVISIONED bool = true
 output SERVICE_UPDATEGRAFANA_RESOURCE_EXISTS bool = resources.outputs.SERVICE_UPDATEGRAFANA_RESOURCE_EXISTS
