@@ -29,6 +29,9 @@
       "githubPat": {
         "value": "${GITHUB_PAT}"
       },
+      "githubOrganizationSlugs": {
+        "value": "${GITHUB_ORGANIZATION_SLUGS}"
+      },
       "grafanaUsername": {
         "value": "${GRAFANA_USERNAME}"
       },
