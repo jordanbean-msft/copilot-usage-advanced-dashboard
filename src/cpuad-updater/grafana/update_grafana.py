@@ -6,6 +6,10 @@ import logging
 from datetime import datetime
 import json
 
+# # load environment variables from .env file
+# from dotenv import load_dotenv
+# load_dotenv()
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -317,7 +321,8 @@ def generate_grafana_model(grafana_token):
             "Authorization": f"Bearer {grafana_token}",
             "X-GitHub-Api-Version": "2022-11-28"
         }
-    response = requests.get(f'{grafana_url.rstrip('/')}/api/datasources', headers=headers)
+    grafana_url_stripted = grafana_url.rstrip('/')
+    response = requests.get(f'{grafana_url_stripted}/api/datasources', headers=headers)
 
     if response.status_code != 200:
         logging.error(f"Failed to get data sources: {response.status_code} - {response.text}")
@@ -358,7 +363,7 @@ if __name__ == "__main__":
 
     logging.info("Adding Grafana data sources...")
     
-    add_grafana_data_sources(grafana_token=grafana_token,)
+    add_grafana_data_sources(grafana_token=grafana_token)
 
     logging.info("Successfully added Grafana data sources.")
 
@@ -366,7 +371,7 @@ if __name__ == "__main__":
 
     python_script_path = 'gen_grafana_model.py'
     
-    dashboard_model = generate_grafana_model(grafana_token=grafana_token,)
+    dashboard_model = generate_grafana_model(grafana_token=grafana_token)
 
     logging.info("Successfully generated Grafana dashboard model.")
 

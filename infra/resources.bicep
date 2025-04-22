@@ -32,6 +32,9 @@ param grafanaPassword string
 @secure()
 param githubPat string
 
+param elasticSearchImageName string
+param grafanaImageName string
+
 var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = uniqueString(subscription().id, resourceGroup().id, location)
 var elasticSearchFileShareName = 'elastic-search'
@@ -283,13 +286,14 @@ module elasticSearch './modules/container-app.bicep' = {
     containerAppsEnvironmentResourceId: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
     applicationInsightsConnectionString: monitoring.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
     definition: elasticSearchDefinition
-    fetchLatestImage: cpuadUpdaterFetchLatestImage
+    existingImage: elasticSearchImageName
     ingressTargetPort: elasticSearchPort
     userAssignedManagedIdentityResourceId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
     userAssignedManagedIdentityClientId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
     tags: tags
     cpu: elasticSearchDefinition.cpu
     memory: elasticSearchDefinition.memory
+    scaleMaxReplicas: 1
     volumeMounts: [
       {
         mountPath: '/usr/share/elasticsearch/data'
@@ -387,24 +391,35 @@ module grafana './modules/container-app.bicep' = {
     containerAppsEnvironmentResourceId: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
     applicationInsightsConnectionString: monitoring.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
     definition: additionalGrafanaDefinition
-    fetchLatestImage: cpuadUpdaterFetchLatestImage
     ingressTargetPort: grafanaPort
+    existingImage: grafanaImageName
     userAssignedManagedIdentityResourceId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
     userAssignedManagedIdentityClientId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
     tags: tags
     ingressExternal: true
     cpu: grafanaDefinition.cpu
     memory: grafanaDefinition.memory
+    scaleMaxReplicas: 1
     volumeMounts: [
       {
         mountPath: '/var/lib/grafana'
         volumeName: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
+      }
+      {
+        mountPath: '/var/lib/elastic'
+        volumeName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
       }
     ]
     volumes: [
       {
         name: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
         storageName: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
+        storageType: 'NfsAzureFile'
+        mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
+      }
+      {
+        name: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+        storageName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
         storageType: 'NfsAzureFile'
         mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
       }

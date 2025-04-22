@@ -58,8 +58,6 @@ services:
     container_name: cpuad-updater
     depends_on:
       - elasticsearch
-    secrets:
-      - github_pat
     environment:
       GITHUB_PAT: ${GITHUB_PAT}
       ORGANIZATION_SLUGS: cody-test-org

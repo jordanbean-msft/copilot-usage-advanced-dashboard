@@ -31,3 +31,4 @@ debug_*
 
 # .env files
 *.env
+src/cpuad-updater/grafana/dashboard-template-test.json

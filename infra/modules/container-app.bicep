@@ -2,7 +2,8 @@ param location string
 param tags object
 param name string
 param definition object
-param fetchLatestImage object
+param fetchLatestImage object = {}
+param existingImage string = ''
 param applicationInsightsConnectionString string
 param userAssignedManagedIdentityClientId string
 param userAssignedManagedIdentityResourceId string
@@ -69,7 +70,7 @@ module containerApp 'br/public:avm/res/app/container-app:0.8.0' = {
     }
     containers: [
       {
-        image: fetchLatestImage.outputs.?containers.?value[?0].?image ?? 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+        image: fetchLatestImage.?outputs.?containers.?value[?0].?image ?? existingImage ?? 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
         name: 'main'
         resources: {
           cpu: json(cpu)

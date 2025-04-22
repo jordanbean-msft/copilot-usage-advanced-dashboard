@@ -20,6 +20,12 @@
       "grafanaExists": {
         "value": "${SERVICE_GRAFANA_RESOURCE_EXISTS=false}"
       },
+      "elasticSearchImageName": {
+        "value": "${SERVICE_ELASTIC_SEARCH_IMAGE_NAME}"
+      },
+      "grafanaImageName": {
+        "value": "${SERVICE_GRAFANA_IMAGE_NAME}"
+      },
       "githubPat": {
         "value": "${GITHUB_PAT}"
       },
@@ -31,8 +37,8 @@
       },
       "updateGrafanaDefinition": {
         "value": {
-          "cpu": "1.0",
-          "memory": "2.0Gi",
+          "cpu": "0.25",
+          "memory": "0.5Gi",
           "triggerType": "Manual",
           "settings": [
             {
@@ -48,8 +54,8 @@
       },
       "cpuAdUpdaterDefinition": {
         "value": {
-          "cpu": "1.0",
-          "memory": "2.0Gi",
+          "cpu": "0.25",
+          "memory": "0.5Gi",
           "triggerType": "Schedule",
           "cronExpression": "0 */1 * * *",
           "settings": [
@@ -78,8 +84,8 @@
       },
       "grafanaDefinition": {
         "value": {
-          "cpu": "1.0",
-          "memory": "2.0Gi",
+          "cpu": "0.5",
+          "memory": "1.0Gi",
           "settings": [
             {
               "name": "GF_LOG_LEVEL",
