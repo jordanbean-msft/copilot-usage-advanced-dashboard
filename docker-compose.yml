@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  elasticsearch:
+    build:
+      context: ./src/elasticsearch
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+    volumes:
+      - data:/usr/share/elasticsearch/data
+      - logs:/usr/share/elasticsearch/logs
+    mem_limit: 1g
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  grafana:
+    build:
+      context: ./src/grafana
+    container_name: grafana
+    mem_limit: 1g
+    ports:
+      - "3000:80"
+    depends_on:
+      - elasticsearch
+    environment:
+      GF_LOG_LEVEL: debug
+      GF_SERVER_HTTP_PORT: 80
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: copilot
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  init-grafana:
+    build:
+      context: ./src/cpuad-updater/grafana
+    container_name: init-grafana
+    depends_on:
+      - grafana
+      - elasticsearch
+      - cpuad-updater
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      GRAFANA_URL: http://grafana:80
+      GRAFANA_USERNAME: admin
+      GRAFANA_PASSWORD: copilot
+    restart: "no"
+
+  cpuad-updater:
+    build:
+      context: ./src/cpuad-updater
+    container_name: cpuad-updater
+    depends_on:
+      - elasticsearch
+    secrets:
+      - github_pat
+    environment:
+      GITHUB_PAT: ${GITHUB_PAT}
+      ORGANIZATION_SLUGS: cody-test-org
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      # Add other environment variables as needed
+    restart: "no"
+
+volumes:
+  data:
+  logs:

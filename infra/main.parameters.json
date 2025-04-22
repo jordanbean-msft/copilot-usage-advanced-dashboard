@@ -70,8 +70,8 @@
       },
       "elasticSearchDefinition": {
         "value": {
-          "cpu": "4.0",
-          "memory": "8.0Gi",
+          "cpu": "1.0",
+          "memory": "2.0Gi",
           "settings": [ 
           ]
         }
