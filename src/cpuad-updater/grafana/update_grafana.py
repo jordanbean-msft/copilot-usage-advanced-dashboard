@@ -94,6 +94,7 @@ def get_existing_grafana_service_account_id(headers):
         f"{grafana_url.rstrip('/')}/api/serviceaccounts/search?query={service_account_name}",
         headers=headers
     )
+    time.sleep(1)  # Add a 1-second delay
 
     if result.status_code != 200:
         logging.error(f"Failed to retrieve service accounts: {result.status_code} - {result.text}")
@@ -124,6 +125,7 @@ def delete_existing_grafana_service_account(headers, service_account_id):
         f"{grafana_url.rstrip('/')}/api/serviceaccounts/{service_account_id}",
         headers=headers
     )
+    time.sleep(1)  # Add a 1-second delay
 
     if result.status_code != 200:
         logging.error(f"Failed to delete service account: {result.status_code} - {result.text}")
@@ -198,6 +200,7 @@ def create_service_account(headers):
             "isDisabled": False
         }
     )
+    time.sleep(1)  # Add a 1-second delay
 
     if result.status_code != 201:
         logging.error(f"Failed to create service account: {result.status_code} - {result.text}")
@@ -298,7 +301,8 @@ def add_grafana_data_sources(grafana_token):
         logging.info(f"Adding data source: {ds['name']}...")
 
         response = requests.post(f"{grafana_url.rstrip('/')}/api/datasources", headers=headers, json=payload)
-
+        time.sleep(1)  # Add a 1-second delay
+        
         if response.status_code != 200:        
             if response.status_code == 409:
                 logging.info(f"Data source {ds['name']} already exists. Proceeding...")
@@ -331,6 +335,7 @@ def generate_grafana_model(grafana_token):
         }
     grafana_url_stripted = grafana_url.rstrip('/')
     response = requests.get(f'{grafana_url_stripted}/api/datasources', headers=headers)
+    time.sleep(1)  # Add a 1-second delay
 
     if response.status_code != 200:
         logging.error(f"Failed to get data sources: {response.status_code} - {response.text}")
