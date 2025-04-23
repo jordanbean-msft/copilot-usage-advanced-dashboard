@@ -1,3 +1,4 @@
+# GITHUB_PAT=ghp_xxxxxxx docker compose up --build
 version: '3.8'
 
 services:
