@@ -213,11 +213,21 @@ module cpuadUpdater './modules/container-job.bicep' = {
         mountPath: '/app/logs'
         volumeName: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
       }
+      {
+        mountPath: '/var/lib/elastic'
+        volumeName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+      }
     ]
     volumes: [
       {
         name: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
         storageName: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
+        storageType: 'NfsAzureFile'
+        mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
+      }
+      {
+        name: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+        storageName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
         storageType: 'NfsAzureFile'
         mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
       }
@@ -414,21 +424,11 @@ module grafana './modules/container-app.bicep' = {
         mountPath: '/var/lib/grafana'
         volumeName: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
       }
-      {
-        mountPath: '/var/lib/elastic'
-        volumeName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
-      }
     ]
     volumes: [
       {
         name: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
         storageName: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
-        storageType: 'NfsAzureFile'
-        mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
-      }
-      {
-        name: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
-        storageName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
         storageType: 'NfsAzureFile'
         mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
       }

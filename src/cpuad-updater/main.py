@@ -630,6 +630,18 @@ class ElasticsearchManager:
             self.es.index(index=index_name, id=doc_id, document=data)
             logger.info(f'[created] to [{index_name}]: {data}') 
 
+def fix_share_permisions(path:str):
+    # Fix share permissions for the path
+    try:
+        if os.path.exists(path):
+            import subprocess
+            result = subprocess.run(["chown", "-R", "1000:1000", path], check=True)
+            logger.info(f"Fixed share permissions for {path} with result: {result.returncode}")
+        else:
+            logger.warning(f"Path {path} does not exist, skipping permission fix")
+    except Exception as e:
+        logger.error(f"Error fixing share permissions for {path}: {e}")
+
 def main(organization_slug):
     logger.info(f"==========================================================================================================")
 
@@ -712,7 +724,11 @@ def main(organization_slug):
 
 if __name__ == '__main__':
     try:
-        print(f"Starting data processing for organizations: {Paras.organization_slugs}")
+        # this is where elastic search mount is
+        logger.info("Fixing share permissions for /var/lib/elastic - when elastic search can't access/create logs")
+        fix_share_permisions("/var/lib/elastic")
+
+        logger.info(f"Starting data processing for organizations: {Paras.organization_slugs}")
         # Split Paras.organization_slugs and process each organization, remember to remove spaces after splitting
         organization_slugs = Paras.organization_slugs.split(',')
         for organization_slug in organization_slugs:

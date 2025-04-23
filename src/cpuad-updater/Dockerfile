@@ -32,11 +32,13 @@ COPY mapping /app/mapping
 COPY *.py /app/
 COPY version /app/
 
+# Running as root alows python to change permissions on the shared volume
+
 # Change ownership of the directories
-RUN chown -R cpuadupdater:cpuadupdater /app
+#RUN chown -R cpuadupdater:cpuadupdater /app
 
 # Switch to the new user
-USER cpuadupdater
+#USER cpuadupdater
 
 # Run the command one time
 CMD ["python3", "main.py"]
