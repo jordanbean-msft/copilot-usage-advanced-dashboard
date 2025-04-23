@@ -31,6 +31,7 @@ param grafanaPassword string
 
 @secure()
 param githubPat string
+param githubOrganizationSlugs string
 
 param elasticSearchImageName string
 param grafanaImageName string
@@ -42,9 +43,13 @@ var grafanaFileShareName = 'grafana'
 var cpuadUpdaterFileShareName = 'cpuad-updater'
 
 var grafanaUsernameSecretName = 'grafana-username'
-var grafanaUsernameSecretValue = grafanaUsername != '' ? grafanaUsername : uniqueString('grafanaUsername', subscription().id, resourceGroup().id, location, resourceToken)
+var grafanaUsernameSecretValue = grafanaUsername != ''
+  ? grafanaUsername
+  : uniqueString('grafanaUsername', subscription().id, resourceGroup().id, location, resourceToken)
 var grafanaPasswordSecretName = 'grafana-password'
-var grafanaPasswordSecretValue = grafanaPassword != '' ? grafanaPassword : uniqueString('grafanaPassword', subscription().id, resourceGroup().id, location, resourceToken)
+var grafanaPasswordSecretValue = grafanaPassword != ''
+  ? grafanaPassword
+  : uniqueString('grafanaPassword', subscription().id, resourceGroup().id, location, resourceToken)
 var githubPatSecretName = 'github-pat'
 
 module monitoring './modules/monitoring.bicep' = {
@@ -177,6 +182,10 @@ var additionalCpuadUpdaterDefinition = {
         name: 'GITHUB_PAT'
         keyVaultSecretName: githubPatSecretName
         secret: true
+      }
+      {
+        name: 'ORGANIZATION_SLUGS'
+        value: githubOrganizationSlugs
       }
     ],
     cpuAdUpdaterDefinition.settings

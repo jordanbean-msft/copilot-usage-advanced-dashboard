@@ -41,8 +41,8 @@ param githubPat string
 @description('The Slugs of all Organizations that you want to monitor, which can be one or multiple separated by `,` (English symbol). **If you are using Copilot Standalone, use your Standalone Slug here, prefixed with `standalone:`, for example `standalone:YOUR_STANDALONE_SLUG`**. Please replace `<YOUR_ORGANIZATION_SLUGS>` with the actual value. For example, the following types of values are supported: `myOrg1`, `myOrg1,myOrg2`, `standalone:myStandaloneSlug`, `myOrg1,standalone:myStandaloneSlug`')
 param githubOrganizationSlugs string
 
-param elasticSearchImageName string
-param grafanaImageName string
+param elasticSearchImageName string = ''
+param grafanaImageName string = ''
 
 // Tags that should be applied to all resources.
 // 
@@ -80,6 +80,7 @@ module resources 'resources.bicep' = {
     grafanaPassword: grafanaPassword
     grafanaUsername: grafanaUsername
     githubPat: githubPat
+    githubOrganizationSlugs: githubOrganizationSlugs
   }
 }
 

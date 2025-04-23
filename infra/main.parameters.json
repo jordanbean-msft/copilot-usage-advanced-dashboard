@@ -69,10 +69,6 @@
             {
               "name": "ELASTICSEARCH_URL",
               "value": "http://elastic-search:80"
-            },
-            {
-              "name": "ORGANIZATION_SLUGS",
-              "value": "${GITHUB_ORGANIZATION_SLUGS}"
             }
           ]
         }
