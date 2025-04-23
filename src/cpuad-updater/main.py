@@ -585,7 +585,7 @@ class ElasticsearchManager:
                 break
             else:
                 logger.warning("Elasticsearch is not responding, retrying...")
-                time.sleep(2)
+                time.sleep(5)
 
         for index_name in Indexes.__dict__:
             if index_name.startswith('index_'):

@@ -67,8 +67,16 @@ def poll_for_grafana():
     """
     while True:
         try:
-            response = requests.get(f"{grafana_url.rstrip('/')}")
+            response = requests.get(f"{grafana_url.rstrip('/')}/api/health")
             if response.status_code == 200:
+                # read the response content
+                content = response.json()
+                logging.info(f"Grafana health status: {content}")
+
+                if content.get('database') != 'ok':
+                    logging.error("Grafana database is not healthy.")
+                    raise ValueError("Grafana database is not healthy.")
+                
                 logging.info("Grafana is up and running.")
                 break
         except requests.exceptions.RequestException as e:
