@@ -213,21 +213,11 @@ module cpuadUpdater './modules/container-job.bicep' = {
         mountPath: '/app/logs'
         volumeName: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
       }
-      {
-        mountPath: '/var/lib/elastic'
-        volumeName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
-      }
     ]
     volumes: [
       {
         name: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
         storageName: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
-        storageType: 'NfsAzureFile'
-        mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
-      }
-      {
-        name: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
-        storageName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
         storageType: 'NfsAzureFile'
         mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
       }
@@ -335,6 +325,35 @@ module elasticSearch './modules/container-app.bicep' = {
     ]
     ingressExternal: false
     keyVaultName: keyVault.outputs.AZURE_RESOURCE_KEY_VAULT_NAME
+    initContainersTemplate: [
+      {
+        name: 'init-elasticsearch'
+        image: 'busybox:1.28'
+        resources: {
+          cpu: json('0.25')
+          memory: '0.5Gi'
+        }
+        command: [
+          '/bin/sh'
+        ]
+        args: [
+          '-c'
+          'chown -R 1000:1000 /usr/share/elasticsearch/data && chown -R 1000:1000 /usr/share/elasticsearch/logs'
+        ]
+        volumeMounts: [
+          {
+            mountPath: '/usr/share/elasticsearch/data'
+            volumeName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+            subPath: 'data'
+          }
+          {
+            mountPath: '/usr/share/elasticsearch/logs'
+            volumeName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+            subPath: 'logs'
+          }
+        ]
+      }
+    ]
     // probes: [
     //   {
     //     type: 'Liveness'
