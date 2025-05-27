@@ -224,15 +224,22 @@ You can analyze the effect of Copilot in different languages ​​and different
 
 # Deployment
 
+## Azure DevOps
+If you are using Azure DevOps, make sure you change the name of the service connection to the name of your service connection.  You will need to change line 
+30 and 45 of the azure-dev.yml file.
+
+To create a service connection you can use the azd pipeline config --provider ado command from the terminal.  You can read more here:
+https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/pipeline-azure-pipelines.
+
 ## Azure Container Apps
-if you are using Azure Container Apps, please refer to the [Azure Container Apps deployment document](deploy/azure-container-apps.md).
+If you are using Azure Container Apps, please refer to the [Azure Container Apps deployment document](deploy/azure-container-apps.md).
 
 ![](image/architecture.drawio.png)
 
 
 
 ## Linux with Docker
-if you are not using Azure, you can use Linux with Docker, please refer to the [Linux with Docker deployment document](deploy/linux-with-docker.md).
+If you are not using Azure, you can use Linux with Docker, please refer to the [Linux with Docker deployment document](deploy/linux-with-docker.md).
 
 ![](image/image_oZJ-KGOxa5.png)
 
