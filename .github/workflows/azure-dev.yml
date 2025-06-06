@@ -29,6 +29,7 @@ jobs:
       GITHUB_ORGANIZATION_SLUGS: ${{ vars.GH_ORGANIZATION_SLUGS }}
       SERVICE_UPDATEGRAFANA_RESOURCE_EXISTS: ${{ vars.SERVICE_UPDATEGRAFANA_RESOURCE_EXISTS }}
       AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      ASSIGN_PERMISSIONS_TO_PRINCIPAL: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
