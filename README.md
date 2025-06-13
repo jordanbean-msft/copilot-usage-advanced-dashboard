@@ -233,6 +233,22 @@ https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/pipeline-a
 
 You will need to install the "Install azd" extension from the marketplace in your Azure DevOps organization if you haven't already done so.
 
+If you don't use the azd command you will need to create teh DevOps variables yourself.  The AZD_INITIAL_ENVIRONMENT_CONFIG variable should be whatever is in your .azure/[env]/config.json file.
+
+The config file looks like this:
+
+```json
+{
+  "infra": {
+    "parameters": {
+      "githubOrganizationSlugs": "my-github-org",
+      "githubPat": "vault://vaultGuid/valueGuid"
+    }
+  },
+  "vault": "vaultGuid"
+}
+```
+
 ## Azure Container Apps
 If you are using Azure Container Apps, please refer to the [Azure Container Apps deployment document](deploy/azure-container-apps.md).
 
