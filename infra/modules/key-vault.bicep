@@ -11,18 +11,24 @@ module vault 'br/public:avm/res/key-vault/vault:0.12.1' = {
   params: {
     name: '${abbrs.keyVaultVaults}${resourceToken}'
     location: location
-    roleAssignments: [
-      {
-        principalId: userAssignedManagedIdentityPrincipalId
-        principalType: 'ServicePrincipal'
-        roleDefinitionIdOrName: 'Key Vault Secrets Officer'
-      }
-      {
-        principalId: principalId
-        principalType: 'User'
-        roleDefinitionIdOrName: 'Key Vault Secrets Officer'
-      }
-    ]
+    roleAssignments: union(
+      [
+        {
+          principalId: userAssignedManagedIdentityPrincipalId
+          principalType: 'ServicePrincipal'
+          roleDefinitionIdOrName: 'Key Vault Secrets Officer'
+        }
+      ],
+      empty(principalId)
+        ? []
+        : [
+            {
+              principalId: principalId
+              principalType: 'User'
+              roleDefinitionIdOrName: 'Key Vault Secrets Officer'
+            }
+          ]
+    )
     secrets: secrets
     enablePurgeProtection: false
     tags: tags
