@@ -231,9 +231,9 @@ If you are using Azure DevOps, make sure you change the name of the service conn
 To create a service connection you can use the azd pipeline config --provider azdo command from the terminal.  You can read more here:
 https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/pipeline-azure-pipelines.
 
-You will need to install the "Install azd" extension from the marketplace in your Azure DevOps organization if you haven't already done so.
+You will need to install the "Install azd" extension from the [marketplace](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.azd) in your Azure DevOps organization if you haven't already done so.
 
-If you don't use the azd command you will need to create teh DevOps variables yourself.  The AZD_INITIAL_ENVIRONMENT_CONFIG variable should be whatever is in your .azure/[env]/config.json file.
+If you don't use the azd command you will need to create the DevOps variables yourself.  The AZD_INITIAL_ENVIRONMENT_CONFIG variable should be whatever is in your .azure/\[env\]/config.json file.
 
 The config file looks like this:
 
