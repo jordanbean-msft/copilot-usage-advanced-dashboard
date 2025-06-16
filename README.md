@@ -233,9 +233,10 @@ https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/pipeline-a
 
 You will need to install the "Install azd" extension from the [marketplace](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.azd) in your Azure DevOps organization if you haven't already done so.
 
-If you don't use the azd command you will need to create the DevOps variables yourself.  
+You will need to manually create the DevOps variables yourself in the Azure DevOps GUI.  
 
-
+## GitHub Actions
+You will create a pipeline using the azure-dev.yml file located in the .github\workflows folder. You will need to manually create the GitHub variables yourself in the Azure DevOps GUI. 
 
 ## 1. Azure Container Apps
 if you are using Azure Container Apps, please refer to the [Azure Container Apps deployment document](deploy/azure-container-apps.md).
