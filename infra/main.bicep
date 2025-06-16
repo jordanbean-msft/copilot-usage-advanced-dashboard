@@ -28,6 +28,8 @@ param grafanaDefinition object
 @description('Id of the user or app to assign application roles')
 param principalId string
 
+param userPrincipalId string
+
 @description('If true, assign permissions to the principalId. If false, do not assign permissions to the principalId. This is useful for testing purposes or when you want to manage permissions manually.')
 param assignPermissionsToPrincipal bool = true
 
@@ -50,7 +52,7 @@ param grafanaImageName string = ''
 param doRoleAssignments bool = true
 
 // Tags that should be applied to all resources.
-// 
+//
 // Note that 'azd-service-name' tags should be applied separately to service host resources.
 // Example usage:
 //   tags: union(tags, { 'azd-service-name': <service name in azure.yaml> })
@@ -71,7 +73,7 @@ module resources 'resources.bicep' = {
   params: {
     location: location
     tags: tags
-    principalId: assignPermissionsToPrincipal ? principalId : ''
+    principalId: (userPrincipalId != null) ? userPrincipalId : principalId
     updateGrafanaExists: updateGrafanaExists
     updateGrafanaDefinition: updateGrafanaDefinition
     cpuAdUpdaterExists: cpuAdUpdaterExists

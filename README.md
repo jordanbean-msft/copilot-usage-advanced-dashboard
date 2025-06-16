@@ -233,7 +233,7 @@ When setting up a deployment you will need to set the following variables for yo
 |AZURE_LOCATION|The Azure location you want to deploy to, such as `eastus`, `westus`, etc.|
 |AZURE_RESOURCE_GROUP|The name of the resource group you want to deploy to.|
 |AZURE_SUBSCRIPTION_ID|The GUID for the subscription you want to deploy to.|
-|AZURE_PRINCIPAL_ID|The Object ID of a user you want to grant access to to the Azure Key Vault.|
+|AZURE_USER_PRINCIPAL_ID|The Object ID of a user you want to grant access to to the Azure Key Vault.|
 |AZURE_TENANT_ID|The Azure Tenant ID of the identity you want to use to deploy the application.|
 |GH_ORGANIZATION_SLUGS|This is your GitHub Organization name. This can be a comma-separated list of orgs if you want to index multiple orgs.|
 |GH_PAT|This is your GitHub Personal Access Token.  Mark this variable as **secret** in your pipeline.|
