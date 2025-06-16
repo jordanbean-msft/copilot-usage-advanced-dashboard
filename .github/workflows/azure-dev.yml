@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     # Run when commits are pushed to mainline branch (main or master)
-    # Set this to the mainline branch you are using 
+    # Set this to the mainline branch you are using
     branches:
       - main
 
@@ -17,6 +17,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: jordan-bean-demo-environment
     env:
       AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
@@ -38,7 +40,7 @@ jobs:
             --federated-credential-provider "github" `
             --tenant-id "$Env:AZURE_TENANT_ID"
         shell: pwsh
-        
+
       - name: Azure CLI Login (OIDC)
         uses: azure/login@v2
         with:
