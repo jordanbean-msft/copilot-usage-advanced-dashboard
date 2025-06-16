@@ -232,12 +232,12 @@ When setting up a deployment you will need to set the following variables for yo
 |AZURE_LOCATION|The Azure location you want to deploy to, such as eastus, westus, etc.|
 |AZURE_RESOURCE_GROUP|The name of the resource group you want to deploy to.|
 |AZURE_SUBSCRIPTION_ID|The GUID for the subscription you want to deploy to.|
-|GH_ORGANIZATION_SLUGS|This is your GitHub Organization name.|
-|GH_PAT|This is your GitHub Personal Access Token.  Mark this variable as secret in your pipeline.|
+|GH_ORGANIZATION_SLUGS|This is your GitHub Organization name. This can be a comma-separated list of orgs if you want to index multiple orgs.|
+|GH_PAT|This is your GitHub Personal Access Token.  Mark this variable as **secret** in your pipeline.|
 
 ## Azure DevOps
 If you are using Azure DevOps, make sure you change the name of the service connection to the name of your service connection.  You will need to change line 
-30 and 45 of the azure-dev.yml file.
+30 and 45 of the `azure-dev.yml` file located in the `.azdo/pipelines` folder.
 
 To create a service connection you can use the azd pipeline config --provider azdo command from the terminal.  You can read more here:
 https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/pipeline-azure-pipelines.
@@ -247,7 +247,7 @@ You will need to install the "Install azd" extension from the [marketplace](http
 You will need to manually create the DevOps variables yourself in the Azure DevOps GUI.  
 
 ## GitHub Actions
-You will create a pipeline using the azure-dev.yml file located in the .github\workflows folder. You will need to manually create the GitHub variables yourself in the Azure DevOps GUI. 
+You will create a pipeline using the `azure-dev.yml` file located in the `.github/workflows` folder. You will need to manually create the GitHub variables yourself in the GitHub GUI. 
 
 ## 1. Azure Container Apps
 if you are using Azure Container Apps, please refer to the [Azure Container Apps deployment document](deploy/azure-container-apps.md).
