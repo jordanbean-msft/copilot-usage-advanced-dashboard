@@ -229,11 +229,11 @@ if you are using Azure Container Apps, please refer to the [Azure Container Apps
 
 ![](image/architecture.drawio.png)
 
-### Deploying as Contributor
+### Deploying as `Contributor`
 
-Deployment adds required role assignments, which require user access administrator role (more permissions than Contributor).
+Deployment adds required role assignments, which require `User Access Administrator` RBAC role (more permissions than `Contributor`) or `Owner` RBAC role.
 
-To deploy as contributor, pass `doRoleAssignments` parameter set to `false` or set `AZURE_ROLE_ASSIGNMENTS` environment variable when deploying with `azd`.
+To deploy as `Contributor` RBAC role, pass `doRoleAssignments` parameter set to `false` or set `AZURE_ROLE_ASSIGNMENTS` environment variable when deploying with `azd`.
 
 Required role assignments:
 
