@@ -224,6 +224,17 @@ You can analyze the effect of Copilot in different languages ​​and different
 
 # Deployment
 
+When setting up a deployment you will need to set the following variables for your pipeline manually:
+
+|**Variable**|**Description**|
+|-|-|
+|AZURE_ENV_NAME|The name of the Azure environment you want to deploy to, such as dev, test, prod, etc.|
+|AZURE_LOCATION|The Azure location you want to deploy to, such as eastus, westus, etc.|
+|AZURE_RESOURCE_GROUP|The name of the resource group you want to deploy to.|
+|AZURE_SUBSCRIPTION_ID|The GUID for the subscription you want to deploy to.|
+|GH_ORGANIZATION_SLUGS|This is your GitHub Organization name.|
+|GH_PAT|This is your GitHub Personal Access Token.  Mark this variable as secret in your pipeline.|
+
 ## Azure DevOps
 If you are using Azure DevOps, make sure you change the name of the service connection to the name of your service connection.  You will need to change line 
 30 and 45 of the azure-dev.yml file.
