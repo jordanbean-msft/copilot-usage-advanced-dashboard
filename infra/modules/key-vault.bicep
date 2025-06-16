@@ -5,30 +5,25 @@ param tags object
 param userAssignedManagedIdentityPrincipalId string
 param principalId string
 param secrets array
+param doRoleAssignments bool
 
 module vault 'br/public:avm/res/key-vault/vault:0.12.1' = {
   name: 'vault'
   params: {
     name: '${abbrs.keyVaultVaults}${resourceToken}'
     location: location
-    roleAssignments: union(
-      [
-        {
-          principalId: userAssignedManagedIdentityPrincipalId
-          principalType: 'ServicePrincipal'
-          roleDefinitionIdOrName: 'Key Vault Secrets Officer'
-        }
-      ],
-      empty(principalId)
-        ? []
-        : [
-            {
-              principalId: principalId
-              principalType: 'User'
-              roleDefinitionIdOrName: 'Key Vault Secrets Officer'
-            }
-          ]
-    )
+    roleAssignments: doRoleAssignments ? [
+      {
+        principalId: userAssignedManagedIdentityPrincipalId
+        principalType: 'ServicePrincipal'
+        roleDefinitionIdOrName: 'Key Vault Secrets Officer'
+      }
+      {
+        principalId: principalId
+        principalType: 'User'
+        roleDefinitionIdOrName: 'Key Vault Secrets Officer'
+      }
+    ] : []
     secrets: secrets
     enablePurgeProtection: false
     tags: tags
