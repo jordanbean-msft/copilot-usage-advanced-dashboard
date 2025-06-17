@@ -45,6 +45,8 @@ This document describes how to deploy the application in Azure Container Apps us
 
 ### Optional: Enable Entra ID SSO for Grafana
 
+The Grafana dashboard only uses the `Viewer` role. This means all users that can sign in can see the same data. If you need more fine-grained access, you should follow this URL to set up Entra ID SSO for Grafana: [Grafana Entra ID SSO](https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/azuread/). You can also limit which users can sign in to the Grafana dashboard using [Entra ID groups](https://learn.microsoft.com/en-us/entra/identity-platform/howto-restrict-your-app-to-a-set-of-users)
+
 1. Create an app registration in Entra ID (Azure Active Directory) with the following settings:
 
    - **Name**: `copilot-usage-advanced-dashboard` (or something similar)

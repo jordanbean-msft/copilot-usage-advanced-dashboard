@@ -237,6 +237,9 @@ When setting up a deployment you will need to set the following variables for yo
 |AZURE_TENANT_ID|The Azure Tenant ID of the identity you want to use to deploy the application.|
 |GH_ORGANIZATION_SLUGS|This is your GitHub Organization name. This can be a comma-separated list of orgs if you want to index multiple orgs.|
 |GH_PAT|This is your GitHub Personal Access Token.  Mark this variable as **secret** in your pipeline.|
+|AZURE_AUTHENTICATION_ENABLED|Enable Entra ID Single-Sign On (SSO) authentication.|
+|AZURE_AUTHENTICATION_CLIENT_ID|The Client ID of the Azure AD application.|
+|AZURE_AUTHENTICATION_OPEN_ID_ISSUER|The OpenID Connect issuer URL for Azure AD.|
 
 ## Azure DevOps
 If you are using Azure DevOps, make sure you change the name of the service connection to the name of your service connection.  You will need to change line
