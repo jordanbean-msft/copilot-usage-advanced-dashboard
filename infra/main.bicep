@@ -51,6 +51,8 @@ param grafanaImageName string = ''
 
 param doRoleAssignments bool = true
 
+param authentication object
+
 // Tags that should be applied to all resources.
 //
 // Note that 'azd-service-name' tags should be applied separately to service host resources.
@@ -89,6 +91,7 @@ module resources 'resources.bicep' = {
     githubPat: githubPat
     githubOrganizationSlugs: githubOrganizationSlugs
     doRoleAssignments: doRoleAssignments
+    authentication: authentication
   }
 }
 
@@ -105,3 +108,6 @@ output AZURE_CONTAINER_APPS_ENVIRONMENT_NAME string = resources.outputs.AZURE_CO
 output AZD_IS_PROVISIONED bool = true
 output SERVICE_UPDATEGRAFANA_RESOURCE_EXISTS bool = resources.outputs.SERVICE_UPDATEGRAFANA_RESOURCE_EXISTS
 output SERVICE_CPUADUPDATER_RESOURCE_EXISTS bool = resources.outputs.SERVICE_CPUADUPDATER_RESOURCE_EXISTS
+output GRAFANA_DASHBOARD_URL string = resources.outputs.GRAFANA_DASHBOARD_URL
+output GRAFANA_DASHBOARD_AUTHENTICATION_CALLBACK_URI string = resources.outputs.GRAFANA_DASHBOARD_AUTHENTICATION_CALLBACK_URI
+output MANAGED_IDENTITY_NAME string = resources.outputs.MANAGED_IDENTITY_NAME

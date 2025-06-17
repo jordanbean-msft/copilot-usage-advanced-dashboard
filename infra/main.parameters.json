@@ -93,14 +93,6 @@
             "value": "debug"
           },
           {
-            "name": "GF_SECURITY_ADMIN_USER__FILE",
-            "value": "/run/secrets/admin_user"
-          },
-          {
-            "name": "GF_SECURITY_ADMIN_PASSWORD__FILE",
-            "value": "/run/secrets/admin_password"
-          },
-          {
             "name": "GF_SERVER_HTTP_PORT",
             "value": "80"
           }
@@ -115,6 +107,14 @@
     },
     "assignPermissionsToPrincipal": {
       "value": "${ASSIGN_PERMISSIONS_TO_PRINCIPAL=true}"
+    },
+    "authentication": {
+      "value": {
+        "enabled": "${AZURE_AUTHENTICATION_ENABLED=true}",
+        "clientId": "${AZURE_AUTHENTICATION_CLIENT_ID=empty}",
+        "clientSecretSettingName": "api://AzureADTokenExchange",
+        "openIdIssuer": "${AZURE_AUTHENTICATION_OPEN_ID_ISSUER=empty}/v2.0"
+      }
     }
   }
 }
