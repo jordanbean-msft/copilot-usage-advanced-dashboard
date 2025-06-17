@@ -33,6 +33,16 @@ This document describes how to deploy the application in Azure Container Apps us
    azd env set GRAFANA_PASSWORD ...
    ```
 
+1. Run the following command to deploy the application.
+
+   ```shell
+   azd up
+   ```
+
+1. After the deployment is complete, you can access the application using the URL provided in the output.
+
+1. The username & password for the Grafana dashboard can be found in the Key Vault. Note that the default values (if you didn't specify them or are not using Entra ID auth) are not secure credentials and should be changed.
+
 ### Optional: Enable Entra ID SSO for Grafana
 
 1. Create an app registration in Entra ID (Azure Active Directory) with the following settings:
@@ -66,8 +76,6 @@ This document describes how to deploy the application in Azure Container Apps us
    azd up
    ```
 
-1. After the deployment is complete, you can access the application using the URL provided in the output.
-
 1. **Optional**: If you enabled Entra ID authentication, you will need to update the Entra ID app registration with values from the deployment.
 
    - **Authentication->Redirect URI**: Update the app registration with the URL of the Grafana dashboard, e.g., `https://<your-container-app-name>.<location>.azurecontainerapps.io/.auth/login/aad/callback`.
@@ -76,4 +84,4 @@ This document describes how to deploy the application in Azure Container Apps us
      - **Select managed identity**: Select the managed identity created for the Container App (look in the Azure portal under the Container App's Identity section to find the name of the managed identity).
      - **Name**: `copilot-usage-advanced-dashboard` (or something similar)
 
-1. The username & password for the Grafana dashboard can be found in the Key Vault. Note that the default values (if you didn't specify them or are not using Entra ID auth) are not secure credentials and should be changed.
+1. After the deployment is complete, you can access the application using the URL provided in the output.
