@@ -115,6 +115,20 @@
         "clientSecretSettingName": "api://AzureADTokenExchange",
         "openIdIssuer": "${AZURE_AUTHENTICATION_OPEN_ID_ISSUER=empty}/v2.0"
       }
+    },
+    "virtualNetwork": {
+      "value": {
+        "shouldProvisionPrivateEndpoints": "${AZURE_VIRTUAL_NETWORK_PROVISION_PRIVATE_ENDPOINTS=false}",
+        "publicNetworkAccess": "${AZURE_VIRTUAL_NETWORK_PUBLIC_NETWORK_ACCESS=Enabled}",
+        "vnetName": "${AZURE_VIRTUAL_NETWORK_NAME}",
+        "vnetAddressPrefixes": "${AZURE_VIRTUAL_NETWORK_ADDRESS_PREFIXES=10.0.0.0/22}",
+        "containerAppsSubnetName": "${AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_NAME=container-apps}",
+        "containerAppsSubnetAddressPrefix": "${AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ADDRESS_PREFIX=10.0.0.0/23}",
+        "containerAppsSubnetNetworkSecurityGroupName": "${AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_NSG_NAME}",
+        "privateEndpointSubnetName": "${AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_NAME=private-endpoints}",
+        "privateEndpointSubnetAddressPrefix": "${AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ADDRESS_PREFIX=10.0.2.0/27}",
+        "privateEndpointSubnetNetworkSecurityGroupName": "${AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_NSG_NAME}"
+      }
     }
   }
 }

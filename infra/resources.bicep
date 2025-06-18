@@ -40,6 +40,8 @@ param doRoleAssignments bool = true
 
 param authentication object
 
+param virtualNetwork object
+
 var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = uniqueString(subscription().id, resourceGroup().id, location)
 var elasticSearchFileShareName = 'elastic-search'
@@ -59,7 +61,7 @@ var grafanaPasswordSecretFilename = 'admin_password'
 var githubPatSecretName = 'github-pat'
 var managedIdentityClientIdSecretName = 'override-use-mi-fic-assertion-client-id'
 
-module monitoring './modules/monitoring.bicep' = {
+module monitoringDeployment './modules/monitoring.bicep' = {
   name: 'monitoringDeployment'
   params: {
     location: location
@@ -69,7 +71,7 @@ module monitoring './modules/monitoring.bicep' = {
   }
 }
 
-module identity './modules/user-assigned-managed-identity.bicep' = {
+module identityDeployment './modules/user-assigned-managed-identity.bicep' = {
   name: 'identityDeployment'
   params: {
     location: location
@@ -78,26 +80,31 @@ module identity './modules/user-assigned-managed-identity.bicep' = {
   }
 }
 
-module containerRegistry './modules/container-registry.bicep' = {
+module containerRegistryDeployment './modules/container-registry.bicep' = {
   name: 'containerRegistryDeployment'
   params: {
     location: location
     tags: tags
     abbrs: abbrs
     resourceToken: resourceToken
-    principalId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_PRINCIPAL_ID
+    principalId: identityDeployment.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_PRINCIPAL_ID
     doRoleAssignments: doRoleAssignments
+    publicNetworkAccess: virtualNetwork.publicNetworkAccess
+    logAnalyticsWorkspaceResourceId: monitoringDeployment.outputs.AZURE_RESOURCE_MONITORING_LOG_ANALYTICS_ID
+    privateEndpointSubnetResourceId: (bool(virtualNetwork.shouldProvisionPrivateEndpoints)
+      ? virtualNetwork.outputs.AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ID
+      : '')
   }
 }
 
-module keyVault './modules/key-vault.bicep' = {
+module keyVaultDeployment './modules/key-vault.bicep' = {
   name: 'keyVaultDeployment'
   params: {
     location: location
     abbrs: abbrs
     resourceToken: resourceToken
     tags: tags
-    userAssignedManagedIdentityPrincipalId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_PRINCIPAL_ID
+    userAssignedManagedIdentityPrincipalId: identityDeployment.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_PRINCIPAL_ID
     principalId: principalId
     doRoleAssignments: doRoleAssignments
     secrets: [
@@ -115,22 +122,28 @@ module keyVault './modules/key-vault.bicep' = {
       }
       {
         name: managedIdentityClientIdSecretName
-        value: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
+        value: identityDeployment.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
       }
     ]
+    publicNetworkAccess: virtualNetwork.publicNetworkAccess
+    logAnalyticsWorkspaceResourceId: monitoringDeployment.outputs.AZURE_RESOURCE_MONITORING_LOG_ANALYTICS_ID
+    privateEndpointSubnetResourceId: (bool(virtualNetwork.shouldProvisionPrivateEndpoints)
+      ? virtualNetwork.outputs.AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ID
+      : '')
   }
 }
 
-module virtualNetwork './modules/virtual-network.bicep' = {
+module virtualNetworkDeployment './modules/virtual-network.bicep' = {
   name: 'virtualNetworkDeployment'
   params: {
     location: location
     abbrs: abbrs
     resourceToken: resourceToken
+    virtualNetwork: virtualNetwork
   }
 }
 
-module storageAccount './modules/storage-account.bicep' = {
+module storageAccountDeployment './modules/storage-account.bicep' = {
   name: 'storageAccountDeployment'
   params: {
     location: location
@@ -140,48 +153,52 @@ module storageAccount './modules/storage-account.bicep' = {
     elasticSearchFileShareName: elasticSearchFileShareName
     grafanaFileShareName: grafanaFileShareName
     cpuadUpdaterFileShareName: cpuadUpdaterFileShareName
-    userAssignedIdentityPrincipalId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_PRINCIPAL_ID
-    keyVaultResourceId: keyVault.outputs.AZURE_RESOURCE_KEY_VAULT_ID
-    containerAppsVirtualNetworkId: virtualNetwork.outputs.AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ID
+    userAssignedIdentityPrincipalId: identityDeployment.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_PRINCIPAL_ID
+    keyVaultResourceId: keyVaultDeployment.outputs.AZURE_RESOURCE_KEY_VAULT_ID
+    containerAppsVirtualNetworkId: virtualNetworkDeployment.outputs.AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ID
     doRoleAssignments: doRoleAssignments
+    publicNetworkAccess: virtualNetwork.publicNetworkAccess
+    logAnalyticsWorkspaceResourceId: monitoringDeployment.outputs.AZURE_RESOURCE_MONITORING_LOG_ANALYTICS_ID
+    privateEndpointSubnetResourceId: (bool(virtualNetwork.shouldProvisionPrivateEndpoints)
+      ? virtualNetworkDeployment.outputs.AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ID
+      : '')
   }
 }
 
-module containerAppsEnvironment './modules/container-app-environment.bicep' = {
+module containerAppsEnvironmentDeployment './modules/container-app-environment.bicep' = {
   name: 'containerAppsEnvironmentDeployment'
   params: {
     location: location
     abbrs: abbrs
-    workloadProfileType: 'D8'
     resourceToken: resourceToken
-    logAnalyticsWorkspaceResourceId: monitoring.outputs.AZURE_RESOURCE_MONITORING_LOG_ANALYTICS_ID
-    infrastructureSubnetId: virtualNetwork.outputs.AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ID
+    logAnalyticsWorkspaceResourceId: monitoringDeployment.outputs.AZURE_RESOURCE_MONITORING_LOG_ANALYTICS_ID
+    infrastructureSubnetId: virtualNetworkDeployment.outputs.AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ID
     storages: [
       {
         kind: 'NFS'
         accessMode: 'ReadWrite'
-        shareName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
-        storageAccountName: storageAccount.outputs.AZURE_STORAGE_ACCOUNT_NAME
+        shareName: storageAccountDeployment.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+        storageAccountName: storageAccountDeployment.outputs.AZURE_STORAGE_ACCOUNT_NAME
       }
       {
         kind: 'NFS'
         accessMode: 'ReadWrite'
-        shareName: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
-        storageAccountName: storageAccount.outputs.AZURE_STORAGE_ACCOUNT_NAME
+        shareName: storageAccountDeployment.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
+        storageAccountName: storageAccountDeployment.outputs.AZURE_STORAGE_ACCOUNT_NAME
       }
       {
         kind: 'NFS'
         accessMode: 'ReadWrite'
-        shareName: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
-        storageAccountName: storageAccount.outputs.AZURE_STORAGE_ACCOUNT_NAME
+        shareName: storageAccountDeployment.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
+        storageAccountName: storageAccountDeployment.outputs.AZURE_STORAGE_ACCOUNT_NAME
       }
     ]
-    publicNetworkAccess: 'Enabled'
-    appInsightsConnectionString: monitoring.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
+    publicNetworkAccess: virtualNetwork.publicNetworkAccess
+    appInsightsConnectionString: monitoringDeployment.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
   }
 }
 
-module cpuadUpdaterFetchLatestImage './modules/fetch-container-job-image.bicep' = {
+module cpuadUpdaterFetchLatestImageDeployment './modules/fetch-container-job-image.bicep' = {
   name: 'cpuadUpdaterFetchImageDeployment'
   params: {
     exists: cpuAdUpdaterExists
@@ -206,43 +223,43 @@ var additionalCpuadUpdaterDefinition = {
   )
 }
 
-module cpuadUpdater './modules/container-job.bicep' = {
+module cpuadUpdaterDeployment './modules/container-job.bicep' = {
   name: 'cpuadUpdaterDeployment'
   params: {
     name: 'cpuad-updater'
     location: location
-    workloadProfileName: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_WORKLOAD_PROFILE_CONSUMPTION
-    containerRegistryLoginServer: containerRegistry.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
-    containerAppsEnvironmentResourceId: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
-    applicationInsightsConnectionString: monitoring.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
+    workloadProfileName: containerAppsEnvironmentDeployment.outputs.AZURE_RESOURCE_CONTAINER_APPS_WORKLOAD_PROFILE_CONSUMPTION
+    containerRegistryLoginServer: containerRegistryDeployment.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
+    containerAppsEnvironmentResourceId: containerAppsEnvironmentDeployment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
+    applicationInsightsConnectionString: monitoringDeployment.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
     definition: additionalCpuadUpdaterDefinition
-    fetchLatestImage: cpuadUpdaterFetchLatestImage
-    userAssignedManagedIdentityResourceId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
-    userAssignedManagedIdentityClientId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
+    fetchLatestImage: cpuadUpdaterFetchLatestImageDeployment
+    userAssignedManagedIdentityResourceId: identityDeployment.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
+    userAssignedManagedIdentityClientId: identityDeployment.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
     tags: tags
     cpu: cpuAdUpdaterDefinition.cpu
     memory: cpuAdUpdaterDefinition.memory
     volumeMounts: [
       {
         mountPath: '/app/logs'
-        volumeName: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
+        volumeName: storageAccountDeployment.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
       }
     ]
     volumes: [
       {
-        name: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
-        storageName: storageAccount.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
+        name: storageAccountDeployment.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
+        storageName: storageAccountDeployment.outputs.AZURE_STORAGE_CPUAD_UPDATER_FILE_SHARE_NAME
         storageType: 'NfsAzureFile'
         mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
       }
     ]
     cronExpression: cpuAdUpdaterDefinition.cronExpression
     triggerType: cpuAdUpdaterDefinition.triggerType
-    keyVaultName: keyVault.outputs.AZURE_RESOURCE_KEY_VAULT_NAME
+    keyVaultName: keyVaultDeployment.outputs.AZURE_RESOURCE_KEY_VAULT_NAME
   }
 }
 
-module updateGrafanaFetchLatestImage './modules/fetch-container-job-image.bicep' = {
+module updateGrafanaFetchLatestImageDeployment './modules/fetch-container-job-image.bicep' = {
   name: 'updateGrafanaFetchImageDeployment'
   params: {
     exists: updateGrafanaExists
@@ -268,28 +285,28 @@ var additionalUpdateGrafanaDefinition = {
   )
 }
 
-module updateGrafana './modules/container-job.bicep' = {
+module updateGrafanaDeployment './modules/container-job.bicep' = {
   name: 'updateGrafanaDeployment'
   params: {
     name: 'update-grafana'
     location: location
-    workloadProfileName: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_WORKLOAD_PROFILE_CONSUMPTION
-    containerRegistryLoginServer: containerRegistry.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
-    containerAppsEnvironmentResourceId: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
-    applicationInsightsConnectionString: monitoring.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
+    workloadProfileName: containerAppsEnvironmentDeployment.outputs.AZURE_RESOURCE_CONTAINER_APPS_WORKLOAD_PROFILE_CONSUMPTION
+    containerRegistryLoginServer: containerRegistryDeployment.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
+    containerAppsEnvironmentResourceId: containerAppsEnvironmentDeployment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
+    applicationInsightsConnectionString: monitoringDeployment.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
     definition: additionalUpdateGrafanaDefinition
-    fetchLatestImage: updateGrafanaFetchLatestImage
-    userAssignedManagedIdentityResourceId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
-    userAssignedManagedIdentityClientId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
+    fetchLatestImage: updateGrafanaFetchLatestImageDeployment
+    userAssignedManagedIdentityResourceId: identityDeployment.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
+    userAssignedManagedIdentityClientId: identityDeployment.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
     tags: tags
     cpu: updateGrafanaDefinition.cpu
     memory: updateGrafanaDefinition.memory
     triggerType: updateGrafanaDefinition.triggerType
-    keyVaultName: keyVault.outputs.AZURE_RESOURCE_KEY_VAULT_NAME
+    keyVaultName: keyVaultDeployment.outputs.AZURE_RESOURCE_KEY_VAULT_NAME
   }
 }
 
-module elasticSearchFetchLatestImage './modules/fetch-container-image.bicep' = {
+module elasticSearchFetchLatestImageDeployment './modules/fetch-container-image.bicep' = {
   name: 'elasticSearchFetchImageDeployment'
   params: {
     exists: elasticSearchExists
@@ -299,20 +316,20 @@ module elasticSearchFetchLatestImage './modules/fetch-container-image.bicep' = {
 
 var elasticSearchPort = 9200
 
-module elasticSearch './modules/container-app.bicep' = {
+module elasticSearchDeployment './modules/container-app.bicep' = {
   name: 'elasticSearchDeployment'
   params: {
     name: 'elastic-search'
     location: location
-    workloadProfileName: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_WORKLOAD_PROFILE_NAME
-    containerRegistryLoginServer: containerRegistry.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
-    containerAppsEnvironmentResourceId: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
-    applicationInsightsConnectionString: monitoring.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
+    workloadProfileName: containerAppsEnvironmentDeployment.outputs.AZURE_RESOURCE_CONTAINER_APPS_WORKLOAD_PROFILE_NAME
+    containerRegistryLoginServer: containerRegistryDeployment.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
+    containerAppsEnvironmentResourceId: containerAppsEnvironmentDeployment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
+    applicationInsightsConnectionString: monitoringDeployment.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
     definition: elasticSearchDefinition
     existingImage: elasticSearchImageName
     ingressTargetPort: elasticSearchPort
-    userAssignedManagedIdentityResourceId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
-    userAssignedManagedIdentityClientId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
+    userAssignedManagedIdentityResourceId: identityDeployment.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
+    userAssignedManagedIdentityClientId: identityDeployment.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
     tags: tags
     cpu: elasticSearchDefinition.cpu
     memory: elasticSearchDefinition.memory
@@ -320,25 +337,25 @@ module elasticSearch './modules/container-app.bicep' = {
     volumeMounts: [
       {
         mountPath: '/usr/share/elasticsearch/data'
-        volumeName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+        volumeName: storageAccountDeployment.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
         subPath: 'data'
       }
       {
         mountPath: '/usr/share/elasticsearch/logs'
-        volumeName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+        volumeName: storageAccountDeployment.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
         subPath: 'logs'
       }
     ]
     volumes: [
       {
-        name: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
-        storageName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+        name: storageAccountDeployment.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+        storageName: storageAccountDeployment.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
         storageType: 'NfsAzureFile'
         mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
       }
     ]
     ingressExternal: false
-    keyVaultName: keyVault.outputs.AZURE_RESOURCE_KEY_VAULT_NAME
+    keyVaultName: keyVaultDeployment.outputs.AZURE_RESOURCE_KEY_VAULT_NAME
     initContainersTemplate: [
       {
         name: 'init-elasticsearch'
@@ -357,12 +374,12 @@ module elasticSearch './modules/container-app.bicep' = {
         volumeMounts: [
           {
             mountPath: '/usr/share/elasticsearch/data'
-            volumeName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+            volumeName: storageAccountDeployment.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
             subPath: 'data'
           }
           {
             mountPath: '/usr/share/elasticsearch/logs'
-            volumeName: storageAccount.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
+            volumeName: storageAccountDeployment.outputs.AZURE_STORAGE_ELASTIC_SEARCH_FILE_SHARE_NAME
             subPath: 'logs'
           }
         ]
@@ -403,7 +420,7 @@ module elasticSearch './modules/container-app.bicep' = {
   }
 }
 
-module grafanaFetchLatestImage './modules/fetch-container-image.bicep' = {
+module grafanaFetchLatestImageDeployment './modules/fetch-container-image.bicep' = {
   name: 'grafanaFetchImageDeployment'
   params: {
     exists: grafanaExists
@@ -459,20 +476,20 @@ var additionalGrafanaDefinition = {
 
 var grafanaPort = 80
 
-module grafana './modules/container-app.bicep' = {
+module grafanaDeployment './modules/container-app.bicep' = {
   name: 'grafanaDeployment'
   params: {
     name: 'grafana'
     location: location
-    workloadProfileName: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_WORKLOAD_PROFILE_CONSUMPTION
-    containerRegistryLoginServer: containerRegistry.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
-    containerAppsEnvironmentResourceId: containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
-    applicationInsightsConnectionString: monitoring.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
+    workloadProfileName: containerAppsEnvironmentDeployment.outputs.AZURE_RESOURCE_CONTAINER_APPS_WORKLOAD_PROFILE_CONSUMPTION
+    containerRegistryLoginServer: containerRegistryDeployment.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
+    containerAppsEnvironmentResourceId: containerAppsEnvironmentDeployment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID
+    applicationInsightsConnectionString: monitoringDeployment.outputs.AZURE_RESOURCE_MONITORING_APP_INSIGHTS_CONNECTION_STRING
     definition: additionalGrafanaDefinition
     ingressTargetPort: grafanaPort
     existingImage: grafanaImageName
-    userAssignedManagedIdentityResourceId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
-    userAssignedManagedIdentityClientId: identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
+    userAssignedManagedIdentityResourceId: identityDeployment.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_ID
+    userAssignedManagedIdentityClientId: identityDeployment.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_CLIENT_ID
     tags: tags
     ingressExternal: true
     cpu: grafanaDefinition.cpu
@@ -481,18 +498,18 @@ module grafana './modules/container-app.bicep' = {
     volumeMounts: [
       {
         mountPath: '/var/lib/grafana'
-        volumeName: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
+        volumeName: storageAccountDeployment.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
       }
     ]
     volumes: [
       {
-        name: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
-        storageName: storageAccount.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
+        name: storageAccountDeployment.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
+        storageName: storageAccountDeployment.outputs.AZURE_STORAGE_GRAFANA_FILE_SHARE_NAME
         storageType: 'NfsAzureFile'
         mountOptions: 'dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,nobrl,cache=none'
       }
     ]
-    keyVaultName: keyVault.outputs.AZURE_RESOURCE_KEY_VAULT_NAME
+    keyVaultName: keyVaultDeployment.outputs.AZURE_RESOURCE_KEY_VAULT_NAME
     authentication: authentication
     managedIdentityClientIdSecretName: managedIdentityClientIdSecretName
     // probes: [
@@ -530,17 +547,17 @@ module grafana './modules/container-app.bicep' = {
   }
 }
 
-output AZURE_RESOURCE_UPDATE_GRAFANA_ID string = updateGrafana.outputs.AZURE_RESOURCE_CONTAINER_APP_ID
-output AZURE_RESOURCE_UPDATE_GRAFANA_NAME string = updateGrafana.outputs.AZURE_RESOURCE_CONTAINER_APP_NAME
-output AZURE_RESOURCE_CPUAD_UPDATER_ID string = cpuadUpdater.outputs.AZURE_RESOURCE_CONTAINER_APP_ID
-output AZURE_RESOURCE_CPUAD_UPDATER_NAME string = cpuadUpdater.outputs.AZURE_RESOURCE_CONTAINER_APP_NAME
-output AZURE_RESOURCE_ELASTIC_SEARCH_ID string = elasticSearch.outputs.AZURE_RESOURCE_CONTAINER_APP_ID
-output AZURE_RESOURCE_GRAFANA_ID string = grafana.outputs.AZURE_RESOURCE_CONTAINER_APP_ID
-output AZURE_CONTAINER_APPS_ENVIRONMENT_NAME string = containerAppsEnvironment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_NAME
-output AZURE_CONTAINER_REGISTRY_LOGIN_SERVER string = containerRegistry.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
-output AZURE_CONTAINER_REGISTRY_NAME string = containerRegistry.outputs.AZURE_CONTAINER_REGISTRY_NAME
+output AZURE_RESOURCE_UPDATE_GRAFANA_ID string = updateGrafanaDeployment.outputs.AZURE_RESOURCE_CONTAINER_APP_ID
+output AZURE_RESOURCE_UPDATE_GRAFANA_NAME string = updateGrafanaDeployment.outputs.AZURE_RESOURCE_CONTAINER_APP_NAME
+output AZURE_RESOURCE_CPUAD_UPDATER_ID string = cpuadUpdaterDeployment.outputs.AZURE_RESOURCE_CONTAINER_APP_ID
+output AZURE_RESOURCE_CPUAD_UPDATER_NAME string = cpuadUpdaterDeployment.outputs.AZURE_RESOURCE_CONTAINER_APP_NAME
+output AZURE_RESOURCE_ELASTIC_SEARCH_ID string = elasticSearchDeployment.outputs.AZURE_RESOURCE_CONTAINER_APP_ID
+output AZURE_RESOURCE_GRAFANA_ID string = grafanaDeployment.outputs.AZURE_RESOURCE_CONTAINER_APP_ID
+output AZURE_CONTAINER_APPS_ENVIRONMENT_NAME string = containerAppsEnvironmentDeployment.outputs.AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_NAME
+output AZURE_CONTAINER_REGISTRY_LOGIN_SERVER string = containerRegistryDeployment.outputs.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER
+output AZURE_CONTAINER_REGISTRY_NAME string = containerRegistryDeployment.outputs.AZURE_CONTAINER_REGISTRY_NAME
 output SERVICE_UPDATEGRAFANA_RESOURCE_EXISTS bool = true
 output SERVICE_CPUADUPDATER_RESOURCE_EXISTS bool = true
-output GRAFANA_DASHBOARD_URL string = grafana.outputs.AZURE_RESOURCE_CONTAINER_APP_FQDN
-output GRAFANA_DASHBOARD_AUTHENTICATION_CALLBACK_URI string = grafana.outputs.AZURE_RESOURCE_CONTAINER_APP_AUTHENTICATION_CALLBACK_URI
-output MANAGED_IDENTITY_NAME string = identity.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_NAME
+output GRAFANA_DASHBOARD_URL string = grafanaDeployment.outputs.AZURE_RESOURCE_CONTAINER_APP_FQDN
+output GRAFANA_DASHBOARD_AUTHENTICATION_CALLBACK_URI string = grafanaDeployment.outputs.AZURE_RESOURCE_CONTAINER_APP_AUTHENTICATION_CALLBACK_URI
+output MANAGED_IDENTITY_NAME string = identityDeployment.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_NAME

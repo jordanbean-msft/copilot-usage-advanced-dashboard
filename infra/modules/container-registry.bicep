@@ -4,7 +4,9 @@ param abbrs object
 param resourceToken string
 param principalId string
 param doRoleAssignments bool
-
+param publicNetworkAccess string
+param logAnalyticsWorkspaceResourceId string
+param privateEndpointSubnetResourceId string = ''
 
 // Container registry
 module containerRegistry 'br/public:avm/res/container-registry/registry:0.1.1' = {
@@ -13,14 +15,31 @@ module containerRegistry 'br/public:avm/res/container-registry/registry:0.1.1' =
     name: '${abbrs.containerRegistryRegistries}${resourceToken}'
     location: location
     tags: tags
-    publicNetworkAccess: 'Enabled'
-    roleAssignments: doRoleAssignments ? [
+    publicNetworkAccess: publicNetworkAccess
+    exportPolicyStatus: toLower(publicNetworkAccess)
+    acrSku: 'Premium'
+    acrAdminUserEnabled: false
+    diagnosticSettings: [
       {
-        principalId: principalId
-        principalType: 'ServicePrincipal'
-        roleDefinitionIdOrName: 'AcrPull'
+        workspaceResourceId: logAnalyticsWorkspaceResourceId
       }
-    ] : []
+    ]
+    roleAssignments: doRoleAssignments
+      ? [
+          {
+            principalId: principalId
+            principalType: 'ServicePrincipal'
+            roleDefinitionIdOrName: 'AcrPull'
+          }
+        ]
+      : null
+    privateEndpoints: !empty(privateEndpointSubnetResourceId)
+      ? [
+          {
+            subnetResourceId: privateEndpointSubnetResourceId
+          }
+        ]
+      : null
   }
 }
 
