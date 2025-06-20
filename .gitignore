@@ -388,9 +388,11 @@ debug_*
 
 # .env files
 *.env
-elasticsearch_env 
+elasticsearch_env
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
 aks-deployment.my.yml
+
+**/acr-ip-rules.parameters.json

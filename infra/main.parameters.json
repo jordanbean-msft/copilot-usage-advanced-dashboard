@@ -129,6 +129,11 @@
         "privateEndpointSubnetAddressPrefix": "${AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ADDRESS_PREFIX=10.0.2.0/27}",
         "privateEndpointSubnetNetworkSecurityGroupName": "${AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_NSG_NAME}"
       }
+    },
+    "containerAppsEnvironment": {
+      "value": {
+        "workloadProfileType": "${AZURE_CONTAINER_APPS_ENVIRONMENT_WORKLOAD_PROFILE_TYPE=Consumption}"
+      }
     }
   }
 }

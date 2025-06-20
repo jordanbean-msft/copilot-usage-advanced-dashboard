@@ -6,8 +6,7 @@ param storages array
 param publicNetworkAccess string
 param infrastructureSubnetId string
 param appInsightsConnectionString string
-
-var workloadProfileName = 'Consumption'
+param workloadProfileName string = 'Consumption'
 
 // Container apps environment
 module containerAppsEnvironment 'br/public:avm/res/app/managed-environment:0.10.0' = {
@@ -20,6 +19,7 @@ module containerAppsEnvironment 'br/public:avm/res/app/managed-environment:0.10.
     storages: storages
     publicNetworkAccess: publicNetworkAccess
     infrastructureSubnetId: infrastructureSubnetId
+    internal: publicNetworkAccess == 'Enabled' ? false : true
     workloadProfiles: [
       {
         name: workloadProfileName
@@ -40,5 +40,4 @@ module containerAppsEnvironment 'br/public:avm/res/app/managed-environment:0.10.
 
 output AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_ID string = containerAppsEnvironment.outputs.resourceId
 output AZURE_RESOURCE_CONTAINER_APPS_WORKLOAD_PROFILE_NAME string = workloadProfileName
-output AZURE_RESOURCE_CONTAINER_APPS_WORKLOAD_PROFILE_CONSUMPTION string = workloadProfileName
 output AZURE_RESOURCE_CONTAINER_APPS_ENVIRONMENT_NAME string = containerAppsEnvironment.outputs.name

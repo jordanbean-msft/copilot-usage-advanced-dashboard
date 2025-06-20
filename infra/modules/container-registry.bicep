@@ -2,6 +2,7 @@ param location string
 param tags object
 param abbrs object
 param resourceToken string
+param networkRuleSetIpRules array
 param principalId string
 param doRoleAssignments bool
 param publicNetworkAccess string
@@ -15,8 +16,8 @@ module containerRegistry 'br/public:avm/res/container-registry/registry:0.1.1' =
     name: '${abbrs.containerRegistryRegistries}${resourceToken}'
     location: location
     tags: tags
-    publicNetworkAccess: publicNetworkAccess
-    exportPolicyStatus: toLower(publicNetworkAccess)
+    publicNetworkAccess: 'Enabled' //this is always Enabled because if you want to control the network, a private endpoint will get created and IP rules will be set
+    exportPolicyStatus: 'enabled' //this is always Enabled because if you want to control the network, a private endpoint will get created and IP rules will be set
     acrSku: 'Premium'
     acrAdminUserEnabled: false
     diagnosticSettings: [
@@ -40,6 +41,9 @@ module containerRegistry 'br/public:avm/res/container-registry/registry:0.1.1' =
           }
         ]
       : null
+    networkRuleBypassOptions: 'AzureServices'
+    networkRuleSetDefaultAction: publicNetworkAccess == 'Enabled' ? 'Allow' : 'Deny'
+    networkRuleSetIpRules: publicNetworkAccess == 'Enabled' ? null : networkRuleSetIpRules
   }
 }
 
