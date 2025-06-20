@@ -7,13 +7,16 @@ param publicNetworkAccess string
 param infrastructureSubnetId string
 param appInsightsConnectionString string
 param workloadProfileName string = 'Consumption'
+param privateEndpointSubnetResourceId string
+
+var containerAppsName = '${abbrs.appManagedEnvironments}${resourceToken}'
 
 // Container apps environment
 module containerAppsEnvironment 'br/public:avm/res/app/managed-environment:0.10.0' = {
   name: 'container-apps-environment'
   params: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    name: '${abbrs.appManagedEnvironments}${resourceToken}'
+    name: containerAppsName
     location: location
     zoneRedundant: false
     storages: storages
@@ -35,6 +38,33 @@ module containerAppsEnvironment 'br/public:avm/res/app/managed-environment:0.10.
         destinations: ['appInsights']
       }
     }
+  }
+}
+
+resource containerAppsEnvironmentPrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = {
+  name: '${abbrs.networkPrivateLinkServices}cae-${resourceToken}'
+  location: location
+  properties: {
+    privateLinkServiceConnections: [
+      {
+        name: '${abbrs.networkPrivateLinkServices}cae-${resourceToken}'
+        properties: {
+          privateLinkServiceId: containerAppsEnvironment.outputs.resourceId
+          groupIds: ['managedEnvironments']
+        }
+      }
+    ]
+    subnet: {
+      id: privateEndpointSubnetResourceId
+    }
+    customDnsConfigs: [
+      {
+        fqdn: '*.${containerAppsEnvironment.outputs.defaultDomain}'
+        ipAddresses: [
+          containerAppsEnvironment.outputs.staticIp
+        ]
+      }
+    ]
   }
 }
 

@@ -178,6 +178,7 @@ module containerAppsEnvironmentDeployment './modules/container-app-environment.b
     resourceToken: resourceToken
     logAnalyticsWorkspaceResourceId: monitoringDeployment.outputs.AZURE_RESOURCE_MONITORING_LOG_ANALYTICS_ID
     infrastructureSubnetId: virtualNetworkDeployment.outputs.AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ID
+    privateEndpointSubnetResourceId: virtualNetworkDeployment.outputs.AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ID
     storages: [
       {
         kind: 'NFS'
