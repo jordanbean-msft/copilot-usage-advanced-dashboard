@@ -34,10 +34,12 @@ module containerAppsNetworkSecurityGroupDeployment 'br/public:avm/res/network/ne
 // need to get any existing DNS server(s) from the virtual network to prevent overwriting them
 resource existingVirtualNetwork 'Microsoft.Network/virtualNetworks@2021-05-01' existing = if (!empty(virtualNetwork.vnetName)) {
   name: virtualNetwork.vnetName
+  scope: resourceGroup(virtualNetwork.vnetResourceGroupName)
 }
 
 module virtualNetworkDeployment 'br/public:avm/res/network/virtual-network:0.6.1' = {
   name: 'virtual-network-deployment'
+  scope: resourceGroup(virtualNetwork.vnetResourceGroupName)
   params: {
     addressPrefixes: [virtualNetwork.vnetAddressPrefixes]
     name: (empty(virtualNetwork.vnetName)) ? '${abbrs.networkVirtualNetworks}${resourceToken}' : virtualNetwork.vnetName

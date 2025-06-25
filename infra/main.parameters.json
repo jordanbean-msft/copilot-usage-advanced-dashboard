@@ -120,7 +120,8 @@
       "value": {
         "shouldProvisionPrivateEndpoints": "${AZURE_VIRTUAL_NETWORK_PROVISION_PRIVATE_ENDPOINTS=false}",
         "publicNetworkAccess": "${AZURE_VIRTUAL_NETWORK_PUBLIC_NETWORK_ACCESS=Enabled}",
-        "vnetName": "${AZURE_VIRTUAL_NETWORK_NAME}",
+        "vnetName": "${AZURE_VIRTUAL_NETWORK_NAME=default}",
+        "vnetResourceGroupName": "${AZURE_VIRTUAL_NETWORK_RESOURCE_GROUP_NAME=default}",
         "vnetAddressPrefixes": "${AZURE_VIRTUAL_NETWORK_ADDRESS_PREFIXES=10.0.0.0/22}",
         "containerAppsSubnetName": "${AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_NAME=container-apps}",
         "containerAppsSubnetAddressPrefix": "${AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ADDRESS_PREFIX=10.0.0.0/23}",
