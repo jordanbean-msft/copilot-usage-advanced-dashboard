@@ -237,9 +237,30 @@ When setting up a deployment you will need to set the following variables for yo
 |AZURE_TENANT_ID|The Azure Tenant ID of the identity you want to use to deploy the application.|
 |GH_ORGANIZATION_SLUGS|This is your GitHub Organization name. This can be a comma-separated list of orgs if you want to index multiple orgs.|
 |GH_PAT|This is your GitHub Personal Access Token.  Mark this variable as **secret** in your pipeline.|
+
+## **Optional** Variables needed for Entra ID SSO
+
+|**Variable**|**Description**|
+|-|-|
 |AZURE_AUTHENTICATION_ENABLED|Enable Entra ID Single-Sign On (SSO) authentication.|
 |AZURE_AUTHENTICATION_CLIENT_ID|The Client ID of the Azure AD application.|
 |AZURE_AUTHENTICATION_OPEN_ID_ISSUER|The OpenID Connect issuer URL for Azure AD.|
+
+## **Optional** Variables needed for private networking
+
+|**Variable**|**Description**|
+|-|-|
+|AZURE_VIRTUAL_NETWORK_PROVISION_PRIVATE_ENDPOINTS|Enable private endpoint provisioning for the virtual network.|
+|AZURE_VIRTUAL_NETWORK_PUBLIC_NETWORK_ACCESS|Enable public network access for the virtual network.|
+|AZURE_VIRTUAL_NETWORK_NAME|The name of the virtual network.|
+|AZURE_VIRTUAL_NETWORK_RESOURCE_GROUP_NAME|The name of the resource group containing the virtual network.|
+|AZURE_VIRTUAL_NETWORK_ADDRESS_PREFIXES|The address prefixes for the virtual network.|
+|AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_NAME|The name of the subnet for container apps.|
+|AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ADDRESS_PREFIX|The address prefix for the container apps subnet.|
+|AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_NSG_NAME|The name of the network security group for the container apps subnet.|
+|AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_NAME|The name of the subnet for private endpoints.|
+|AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ADDRESS_PREFIX|The address prefix for the private endpoint subnet.|
+|AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_NSG_NAME|The name of the network security group for the private endpoint subnet.|
 
 ## Azure DevOps
 If you are using Azure DevOps, make sure you change the name of the service connection to the name of your service connection.  You will need to change line

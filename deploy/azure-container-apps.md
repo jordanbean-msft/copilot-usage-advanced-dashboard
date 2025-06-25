@@ -87,3 +87,47 @@ The Grafana dashboard only uses the `Viewer` role. This means all users that can
      - **Name**: `copilot-usage-advanced-dashboard` (or something similar)
 
 1. After the deployment is complete, you can access the application using the URL provided in the output.
+
+### Optional: Enable private networking
+
+**Note**: This deployment assumes you already have a virtual network set up in Azure and that you have automation in place to create all necessary DNS records for the private endpoints. The deployment will not create the virtual network or DNS records for you.
+
+Your virtual network should have the following configuration:
+- Size: At least `/22` for the main address space.
+- Subnets:
+   - A subnet for the Container Apps, which is used to host the application.
+     - At least `/23` is recommended for the Container Apps subnet.
+     - Delegate the subnet to `Microsoft.App/environment`.
+   - A subnet for the private endpoints for all Azure PaaS services. At least `/27` is recommended for the private endpoint subnet.
+
+1. Private networking support can be enabled by setting the following environment variables:
+
+   ```shell
+   azd env set AZURE_VIRTUAL_NETWORK_PROVISION_PRIVATE_ENDPOINTS true
+
+   azd env set AZURE_VIRTUAL_NETWORK_PUBLIC_NETWORK_ACCESS Disabled
+
+   azd env set AZURE_VIRTUAL_NETWORK_NAME <your-vnet-name>
+
+   azd env set AZURE_VIRTUAL_NETWORK_RESOURCE_GROUP_NAME <your-vnet-resource-group-name>
+
+   azd env set AZURE_VIRTUAL_NETWORK_ADDRESS_PREFIXES <your-vnet-address-prefixes>
+
+   azd env set AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_NAME <your-container-apps-subnet-name>
+
+   azd env set AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ADDRESS_PREFIX <your-container-apps-subnet-address-prefix>
+
+   azd env set AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_NSG_NAME <your-container-apps-subnet-nsg-name>
+
+   azd env set AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_NAME <your-private-endpoint-subnet-name>
+
+   azd env set AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ADDRESS_PREFIX <your-private-endpoint-subnet-address-prefix>
+
+   azd env set AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_NSG_NAME <your-private-endpoint-subnet-nsg-name>
+   ```
+
+1. Run the following command to deploy the application.
+
+   ```shell
+   azd up
+   ```
