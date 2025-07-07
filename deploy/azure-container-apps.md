@@ -25,6 +25,16 @@ This document describes how to deploy the application in Azure Container Apps us
    azd env set GITHUB_ORGANIZATION_SLUGS ...
    ```
 
+   - `GITHUB_PAT`:
+      - Your GitHub account needs to have Owner permissions for Organizations.
+      - [Create a personal access token (classic)](https://docs.github.com/en/enterprise-cloud@latest/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) of your account with the `manage_billing:copilot`, `read:enterprise`, `read:org` scope. Then please replace `<YOUR_GITHUB_PAT>` with the actual PAT.
+      - If you encounter PAT permission error, please **Allow access via fine-grained personal access tokens** in Organization's **Settings** - **Personal access tokens**.
+   - `GITHUB_ORGANIZATION_SLUGS`: The Slugs of all Organizations that you want to monitor, which can be one or multiple separated by `,` (English symbol). **If you are using Copilot Standalone, use your Standalone Slug here, prefixed with `standalone:`, for example `standalone:YOUR_STANDALONE_SLUG`**. Please replace `<YOUR_ORGANIZATION_SLUGS>` with the actual value. For example, the following types of values are supported:
+      - `myOrg1`
+      - `myOrg1,myOrg2`
+      - `standalone:myStandaloneSlug`
+      - `myOrg1,standalone:myStandaloneSlug`
+
 1. **Optional** Run the following commands to set the Grafana credentials. Note that not setting this values results in the deployment script generating credentials.
 
    ```shell

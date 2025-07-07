@@ -391,38 +391,38 @@ module elasticSearchDeployment './modules/container-app.bicep' = {
         ]
       }
     ]
-    // probes: [
-    //   {
-    //     type: 'Liveness'
-    //     httpGet: {
-    //       path: '/_cluster/health?wait_for_status=yellow&timeout=50s'
-    //       port: elasticSearchPort
-    //     }
-    //     initialDelaySeconds: 10
-    //     periodSeconds: 10
-    //     failureThreshold: 10
-    //   }
-    //   {
-    //     type: 'Readiness'
-    //     httpGet: {
-    //       path: '/_cluster/health?wait_for_status=yellow&timeout=50s'
-    //       port: elasticSearchPort
-    //     }
-    //     initialDelaySeconds: 10
-    //     periodSeconds: 10
-    //     failureThreshold: 10
-    //   }
-    //   {
-    //     type: 'Startup'
-    //     httpGet: {
-    //       path: '/_cluster/health?wait_for_status=yellow&timeout=50s'
-    //       port: elasticSearchPort
-    //     }
-    //     initialDelaySeconds: 10
-    //     periodSeconds: 10
-    //     failureThreshold: 10
-    //   }
-    // ]
+    probes: [
+      {
+        type: 'Liveness'
+        httpGet: {
+          path: '/_cluster/health?wait_for_status=yellow&timeout=50s'
+          port: elasticSearchPort
+        }
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        failureThreshold: 10
+      }
+      {
+        type: 'Readiness'
+        httpGet: {
+          path: '/_cluster/health?wait_for_status=yellow&timeout=50s'
+          port: elasticSearchPort
+        }
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        failureThreshold: 10
+      }
+      {
+        type: 'Startup'
+        httpGet: {
+          path: '/_cluster/health?wait_for_status=yellow&timeout=50s'
+          port: elasticSearchPort
+        }
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        failureThreshold: 10
+      }
+    ]
   }
 }
 
@@ -518,38 +518,38 @@ module grafanaDeployment './modules/container-app.bicep' = {
     keyVaultName: keyVaultDeployment.outputs.AZURE_RESOURCE_KEY_VAULT_NAME
     authentication: authentication
     managedIdentityClientIdSecretName: managedIdentityClientIdSecretName
-    // probes: [
-    //   {
-    //     type: 'Liveness'
-    //     httpGet: {
-    //       path: '/api/health'
-    //       port: grafanaPort
-    //     }
-    //     initialDelaySeconds: 10
-    //     periodSeconds: 10
-    //     failureThreshold: 10
-    //   }
-    //   {
-    //     type: 'Readiness'
-    //     httpGet: {
-    //       path: '/api/health'
-    //       port: grafanaPort
-    //     }
-    //     initialDelaySeconds: 10
-    //     periodSeconds: 10
-    //     failureThreshold: 10
-    //   }
-    //   {
-    //     type: 'Startup'
-    //     httpGet: {
-    //       path: '/api/health'
-    //       port: grafanaPort
-    //     }
-    //     initialDelaySeconds: 10
-    //     periodSeconds: 10
-    //     failureThreshold: 10
-    //   }
-    // ]
+    probes: [
+      {
+        type: 'Liveness'
+        httpGet: {
+          path: '/api/health'
+          port: grafanaPort
+        }
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        failureThreshold: 10
+      }
+      {
+        type: 'Readiness'
+        httpGet: {
+          path: '/api/health'
+          port: grafanaPort
+        }
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        failureThreshold: 10
+      }
+      {
+        type: 'Startup'
+        httpGet: {
+          path: '/api/health'
+          port: grafanaPort
+        }
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        failureThreshold: 10
+      }
+    ]
   }
 }
 
