@@ -2,7 +2,7 @@
 
 ## Architecture diagram
 
-![](/image/architecture.drawio.png)
+![](/image/container-apps-network-architecture.drawio.png)
 
 ## Technology stack
 
