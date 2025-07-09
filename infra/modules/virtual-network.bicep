@@ -75,7 +75,7 @@ module containerAppsNetworkSecurityGroupDeployment 'br/public:avm/res/network/ne
           protocol: 'Tcp'
           sourceAddressPrefix: virtualNetwork.containerAppsSubnetAddressPrefix
           sourcePortRange: '*'
-          destinationAddressPrefix: virtualNetwork.privateEndpointSubnetAddressPrefix
+          destinationAddressPrefix: '*'
           destinationPortRanges: [
             '80'
             '443'

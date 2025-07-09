@@ -274,7 +274,11 @@ You will need to install the "Install azd" extension from the [marketplace](http
 You will need to manually create the DevOps variables yourself in the Azure DevOps GUI.
 
 ## GitHub Actions
-You will create a pipeline using the `azure-dev.yml` file located in the `.github/workflows` folder. You will need to manually create the GitHub variables yourself in the GitHub GUI.
+You will create a pipeline using the `azure-dev.yml` file located in the `.github/workflows` folder.
+
+You will need to manually create the GitHub variables yourself in the GitHub GUI.
+
+Also update the `environment` variable in the `azure-dev.yml` file to match the environment you want to deploy to (or remove it if you don't want to use environments).
 
 ## 1. Azure Container Apps
 if you are using Azure Container Apps, please refer to the [Azure Container Apps deployment document](deploy/azure-container-apps.md).
