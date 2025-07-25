@@ -67,6 +67,12 @@ jobs:
           tenant-id: ${{ env.AZURE_TENANT_ID }}
           subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
+      # this is needed because the azd hooks won't be registred in a CICD pipeline correctly, see https://github.com/Azure/azure-dev/issues/3920
+      - name: Create azd env
+        run: azd env new $AZURE_ENV_NAME
+        env:
+          AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+
       - name: Provision Infrastructure
         run: azd provision --no-prompt
         env:

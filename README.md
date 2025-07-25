@@ -243,8 +243,8 @@ When setting up a deployment you will need to set the following variables for yo
 |**Variable**|**Description**|
 |-|-|
 |AZURE_AUTHENTICATION_ENABLED|Enable Entra ID Single-Sign On (SSO) authentication.|
-|AZURE_AUTHENTICATION_CLIENT_ID|The Client ID of the Azure AD application.|
-|AZURE_AUTHENTICATION_OPEN_ID_ISSUER|The OpenID Connect issuer URL for Azure AD.|
+|AZURE_AUTHENTICATION_CLIENT_ID|The Application (client) ID of the Entra ID application registration.|
+|AZURE_AUTHENTICATION_OPEN_ID_ISSUER|The OpenID Connect issuer URL for Entra ID (example: https://login.microsoftonline.com/<your-tenant-id>). This is also known as the Authority URL in the Entra ID Endpoints page.|
 
 ## **Optional** Variables needed for private networking
 
