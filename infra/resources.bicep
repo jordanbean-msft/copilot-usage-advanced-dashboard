@@ -163,14 +163,12 @@ module storageAccountDeployment './modules/storage-account.bicep' = {
     cpuadUpdaterFileShareName: cpuadUpdaterFileShareName
     userAssignedIdentityPrincipalId: identityDeployment.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_PRINCIPAL_ID
     keyVaultResourceId: keyVaultDeployment.outputs.AZURE_RESOURCE_KEY_VAULT_ID
-    containerAppsVirtualNetworkId: (bool(virtualNetwork.shouldProvisionPrivateEndpoints)
-      ? virtualNetworkDeployment.?outputs.AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ID
-      : '')
+    containerAppsVirtualNetworkId: virtualNetworkDeployment.outputs.AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ID
     doRoleAssignments: doRoleAssignments
     publicNetworkAccess: virtualNetwork.publicNetworkAccess
     logAnalyticsWorkspaceResourceId: monitoringDeployment.outputs.AZURE_RESOURCE_MONITORING_LOG_ANALYTICS_ID
     privateEndpointSubnetResourceId: (bool(virtualNetwork.shouldProvisionPrivateEndpoints)
-      ? virtualNetworkDeployment.?outputs.AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ID
+      ? virtualNetworkDeployment.outputs.AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ID
       : '')
   }
 }

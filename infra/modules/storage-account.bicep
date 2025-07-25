@@ -30,7 +30,7 @@ module storageAccount 'br/public:avm/res/storage/storage-account:0.18.2' = {
     publicNetworkAccess: publicNetworkAccess
     networkAcls: {
       bypass: 'AzureServices'
-      defaultAction: 'Deny'
+      defaultAction: (publicNetworkAccess == 'Enabled') ? 'Allow' : 'Deny'
       virtualNetworkRules: !empty(containerAppsVirtualNetworkId)
         ? [
             {
