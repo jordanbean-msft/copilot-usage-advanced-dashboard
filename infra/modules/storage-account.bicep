@@ -7,7 +7,7 @@ param elasticSearchFileShareName string
 param grafanaFileShareName string
 param cpuadUpdaterFileShareName string
 param keyVaultResourceId string
-param containerAppsVirtualNetworkId string
+param containerAppsVirtualNetworkId string = ''
 param doRoleAssignments bool
 param publicNetworkAccess string
 param logAnalyticsWorkspaceResourceId string
@@ -31,12 +31,14 @@ module storageAccount 'br/public:avm/res/storage/storage-account:0.18.2' = {
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: 'Deny'
-      virtualNetworkRules: [
-        {
-          id: containerAppsVirtualNetworkId
-          action: 'Allow'
-        }
-      ]
+      virtualNetworkRules: !empty(containerAppsVirtualNetworkId)
+        ? [
+            {
+              id: containerAppsVirtualNetworkId
+              action: 'Allow'
+            }
+          ]
+        : []
     }
     roleAssignments: doRoleAssignments
       ? [

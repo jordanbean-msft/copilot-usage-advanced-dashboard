@@ -96,7 +96,7 @@ module containerRegistryDeployment './modules/container-registry.bicep' = {
     publicNetworkAccess: virtualNetwork.publicNetworkAccess
     logAnalyticsWorkspaceResourceId: monitoringDeployment.outputs.AZURE_RESOURCE_MONITORING_LOG_ANALYTICS_ID
     privateEndpointSubnetResourceId: (bool(virtualNetwork.shouldProvisionPrivateEndpoints)
-      ? virtualNetworkDeployment.outputs.AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ID
+      ? virtualNetworkDeployment.?outputs.AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ID
       : '')
     networkRuleSetIpRules: acrNetworkRuleSetIpRules
   }
@@ -133,12 +133,12 @@ module keyVaultDeployment './modules/key-vault.bicep' = {
     publicNetworkAccess: virtualNetwork.publicNetworkAccess
     logAnalyticsWorkspaceResourceId: monitoringDeployment.outputs.AZURE_RESOURCE_MONITORING_LOG_ANALYTICS_ID
     privateEndpointSubnetResourceId: (bool(virtualNetwork.shouldProvisionPrivateEndpoints)
-      ? virtualNetworkDeployment.outputs.AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ID
+      ? virtualNetworkDeployment.?outputs.AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ID
       : '')
   }
 }
 
-module virtualNetworkDeployment './modules/virtual-network.bicep' = {
+module virtualNetworkDeployment './modules/virtual-network.bicep' = if (bool(virtualNetwork.shouldProvisionPrivateEndpoints)) {
   name: 'virtualNetworkDeployment'
   params: {
     location: location
@@ -160,12 +160,14 @@ module storageAccountDeployment './modules/storage-account.bicep' = {
     cpuadUpdaterFileShareName: cpuadUpdaterFileShareName
     userAssignedIdentityPrincipalId: identityDeployment.outputs.AZURE_RESOURCE_USER_ASSIGNED_IDENTITY_PRINCIPAL_ID
     keyVaultResourceId: keyVaultDeployment.outputs.AZURE_RESOURCE_KEY_VAULT_ID
-    containerAppsVirtualNetworkId: virtualNetworkDeployment.outputs.AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ID
+    containerAppsVirtualNetworkId: (bool(virtualNetwork.shouldProvisionPrivateEndpoints)
+      ? virtualNetworkDeployment.?outputs.AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ID
+      : '')
     doRoleAssignments: doRoleAssignments
     publicNetworkAccess: virtualNetwork.publicNetworkAccess
     logAnalyticsWorkspaceResourceId: monitoringDeployment.outputs.AZURE_RESOURCE_MONITORING_LOG_ANALYTICS_ID
     privateEndpointSubnetResourceId: (bool(virtualNetwork.shouldProvisionPrivateEndpoints)
-      ? virtualNetworkDeployment.outputs.AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ID
+      ? virtualNetworkDeployment.?outputs.AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ID
       : '')
   }
 }
@@ -177,8 +179,12 @@ module containerAppsEnvironmentDeployment './modules/container-app-environment.b
     abbrs: abbrs
     resourceToken: resourceToken
     logAnalyticsWorkspaceResourceId: monitoringDeployment.outputs.AZURE_RESOURCE_MONITORING_LOG_ANALYTICS_ID
-    infrastructureSubnetId: virtualNetworkDeployment.outputs.AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ID
-    privateEndpointSubnetResourceId: virtualNetworkDeployment.outputs.AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ID
+    infrastructureSubnetId: (bool(virtualNetwork.shouldProvisionPrivateEndpoints)
+      ? virtualNetworkDeployment.?outputs.AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ID
+      : '')
+    privateEndpointSubnetResourceId: (bool(virtualNetwork.shouldProvisionPrivateEndpoints)
+      ? virtualNetworkDeployment.?outputs.AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ID
+      : '')
     storages: [
       {
         kind: 'NFS'

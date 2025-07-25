@@ -4,10 +4,10 @@ param resourceToken string
 param logAnalyticsWorkspaceResourceId string
 param storages array
 param publicNetworkAccess string
-param infrastructureSubnetId string
+param infrastructureSubnetId string = ''
 param appInsightsConnectionString string
 param workloadProfileName string = 'Consumption'
-param privateEndpointSubnetResourceId string
+param privateEndpointSubnetResourceId string = ''
 
 var containerAppsName = '${abbrs.appManagedEnvironments}${resourceToken}'
 
@@ -21,7 +21,7 @@ module containerAppsEnvironment 'br/public:avm/res/app/managed-environment:0.10.
     zoneRedundant: false
     storages: storages
     publicNetworkAccess: publicNetworkAccess
-    infrastructureSubnetId: infrastructureSubnetId
+    infrastructureSubnetId: !empty(infrastructureSubnetId) ? infrastructureSubnetId : null
     internal: publicNetworkAccess == 'Enabled' ? false : true
     workloadProfiles: [
       {
@@ -41,7 +41,8 @@ module containerAppsEnvironment 'br/public:avm/res/app/managed-environment:0.10.
   }
 }
 
-resource containerAppsEnvironmentPrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = {
+// Only create the private endpoint resource if privateEndpointSubnetResourceId is not empty
+resource containerAppsEnvironmentPrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = if (!empty(privateEndpointSubnetResourceId)) {
   name: '${abbrs.networkPrivateLinkServices}cae-${resourceToken}'
   location: location
   properties: {
