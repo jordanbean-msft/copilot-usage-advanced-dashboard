@@ -4,7 +4,7 @@ param resourceToken string
 param logAnalyticsWorkspaceResourceId string
 param storages array
 param publicNetworkAccess string
-param infrastructureSubnetId string = ''
+param infrastructureSubnetId string
 param appInsightsConnectionString string
 param workloadProfileName string = 'Consumption'
 param privateEndpointSubnetResourceId string = ''
@@ -21,7 +21,7 @@ module containerAppsEnvironment 'br/public:avm/res/app/managed-environment:0.10.
     zoneRedundant: false
     storages: storages
     publicNetworkAccess: publicNetworkAccess
-    infrastructureSubnetId: !empty(infrastructureSubnetId) ? infrastructureSubnetId : null
+    infrastructureSubnetId: infrastructureSubnetId
     internal: publicNetworkAccess == 'Enabled' ? false : true
     workloadProfiles: [
       {
