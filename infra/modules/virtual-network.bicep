@@ -321,13 +321,11 @@ var subnets = [
       ? containerAppsNetworkSecurityGroupDeployment.?outputs.resourceId
       : ''
   }
-  bool(virtualNetwork.shouldProvisionPrivateEndpoints)
-    ? {
-        name: virtualNetwork.privateEndpointSubnetName
-        addressPrefix: virtualNetwork.privateEndpointSubnetAddressPrefix
-        networkSecurityGroupResourceId: privateEndpointsNetworkSecurityGroupDeployment.?outputs.resourceId
-      }
-    : null
+  {
+    name: virtualNetwork.privateEndpointSubnetName
+    addressPrefix: virtualNetwork.privateEndpointSubnetAddressPrefix
+    networkSecurityGroupResourceId: privateEndpointsNetworkSecurityGroupDeployment.?outputs.resourceId
+  }
 ]
 
 module virtualNetworkDeployment 'br/public:avm/res/network/virtual-network:0.6.1' = {
