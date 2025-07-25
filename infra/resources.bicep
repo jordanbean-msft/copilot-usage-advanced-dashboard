@@ -138,7 +138,7 @@ module keyVaultDeployment './modules/key-vault.bicep' = {
   }
 }
 
-module virtualNetworkDeployment './modules/virtual-network.bicep' = if (bool(virtualNetwork.shouldProvisionPrivateEndpoints)) {
+module virtualNetworkDeployment './modules/virtual-network.bicep' = {
   name: 'virtualNetworkDeployment'
   params: {
     location: location
@@ -179,9 +179,7 @@ module containerAppsEnvironmentDeployment './modules/container-app-environment.b
     abbrs: abbrs
     resourceToken: resourceToken
     logAnalyticsWorkspaceResourceId: monitoringDeployment.outputs.AZURE_RESOURCE_MONITORING_LOG_ANALYTICS_ID
-    infrastructureSubnetId: (bool(virtualNetwork.shouldProvisionPrivateEndpoints)
-      ? virtualNetworkDeployment.?outputs.AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ID
-      : '')
+    infrastructureSubnetId: virtualNetworkDeployment.outputs.AZURE_VIRTUAL_NETWORK_CONTAINER_APPS_SUBNET_ID
     privateEndpointSubnetResourceId: (bool(virtualNetwork.shouldProvisionPrivateEndpoints)
       ? virtualNetworkDeployment.?outputs.AZURE_VIRTUAL_NETWORK_PRIVATE_ENDPOINT_SUBNET_ID
       : '')
