@@ -67,6 +67,10 @@ jobs:
           tenant-id: ${{ env.AZURE_TENANT_ID }}
           subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
+      # set the execution flag on all the files in the scripts directory to prevent errors when copying between Linux and Windows
+      - name: Set execution flag on scripts
+        run: chmod +x ./scripts/*.sh
+
       # this is needed because the azd hooks won't be registred in a CICD pipeline correctly, see https://github.com/Azure/azure-dev/issues/3920
       - name: Create azd env
         run: azd env new $AZURE_ENV_NAME
