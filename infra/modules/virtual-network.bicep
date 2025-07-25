@@ -4,7 +4,7 @@ param resourceToken string
 param virtualNetwork object
 param resourceGroupName string
 
-module containerAppsNetworkSecurityGroupDeployment 'br/public:avm/res/network/network-security-group:0.5.1' = {
+module containerAppsNetworkSecurityGroupDeployment 'br/public:avm/res/network/network-security-group:0.5.1' = if (bool(virtualNetwork.shouldProvisionPrivateEndpoints)) {
   name: 'container-apps-network-security-group'
   params: {
     name: (empty(virtualNetwork.containerAppsSubnetNetworkSecurityGroupName))
@@ -233,7 +233,7 @@ module containerAppsNetworkSecurityGroupDeployment 'br/public:avm/res/network/ne
   }
 }
 
-module privateEndpointsNetworkSecurityGroupDeployment 'br/public:avm/res/network/network-security-group:0.5.1' = {
+module privateEndpointsNetworkSecurityGroupDeployment 'br/public:avm/res/network/network-security-group:0.5.1' = if (bool(virtualNetwork.shouldProvisionPrivateEndpoints)) {
   name: 'private-endpoints-network-security-group'
   params: {
     name: (empty(virtualNetwork.privateEndpointSubnetNetworkSecurityGroupName))
@@ -309,6 +309,27 @@ resource existingVirtualNetwork 'Microsoft.Network/virtualNetworks@2021-05-01' e
   scope: resourceGroup(virtualNetwork.vnetResourceGroupName)
 }
 
+var subnets = [
+  {
+    name: virtualNetwork.containerAppsSubnetName
+    addressPrefix: virtualNetwork.containerAppsSubnetAddressPrefix
+    delegation: 'Microsoft.App/environments'
+    serviceEndpoints: [
+      'Microsoft.Storage'
+    ]
+    networkSecurityGroupResourceId: bool(virtualNetwork.shouldProvisionPrivateEndpoints)
+      ? containerAppsNetworkSecurityGroupDeployment.?outputs.resourceId
+      : ''
+  }
+  bool(virtualNetwork.shouldProvisionPrivateEndpoints)
+    ? {
+        name: virtualNetwork.privateEndpointSubnetName
+        addressPrefix: virtualNetwork.privateEndpointSubnetAddressPrefix
+        networkSecurityGroupResourceId: privateEndpointsNetworkSecurityGroupDeployment.?outputs.resourceId
+      }
+    : null
+]
+
 module virtualNetworkDeployment 'br/public:avm/res/network/virtual-network:0.6.1' = {
   name: 'virtual-network-deployment'
   scope: resourceGroup(resourceGroupName)
@@ -318,22 +339,7 @@ module virtualNetworkDeployment 'br/public:avm/res/network/virtual-network:0.6.1
       ? '${abbrs.networkVirtualNetworks}${resourceToken}'
       : virtualNetwork.vnetName
     location: location
-    subnets: [
-      {
-        name: virtualNetwork.containerAppsSubnetName
-        addressPrefix: virtualNetwork.containerAppsSubnetAddressPrefix
-        delegation: 'Microsoft.App/environments'
-        serviceEndpoints: [
-          'Microsoft.Storage'
-        ]
-        networkSecurityGroupResourceId: containerAppsNetworkSecurityGroupDeployment.outputs.resourceId
-      }
-      {
-        name: virtualNetwork.privateEndpointSubnetName
-        addressPrefix: virtualNetwork.privateEndpointSubnetAddressPrefix
-        networkSecurityGroupResourceId: privateEndpointsNetworkSecurityGroupDeployment.outputs.resourceId
-      }
-    ]
+    subnets: subnets
     dnsServers: existingVirtualNetwork.?properties.dhcpOptions.dnsServers
   }
 }
