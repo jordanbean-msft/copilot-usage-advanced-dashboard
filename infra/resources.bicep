@@ -145,9 +145,9 @@ module virtualNetworkDeployment './modules/virtual-network.bicep' = {
     abbrs: abbrs
     resourceToken: resourceToken
     virtualNetwork: virtualNetwork
-    resourceGroupName: (empty(virtualNetwork.vnetResourceGroupName)
+    resourceGroupName: virtualNetwork.vnetResourceGroupName == 'default'
       ? resourceGroup().name
-      : virtualNetwork.vnetResourceGroupName)
+      : virtualNetwork.vnetResourceGroupName
   }
 }
 
