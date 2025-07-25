@@ -7,7 +7,7 @@ set -e
 # AZURE_LOCATION
 
 if [[ -z "$AZURE_LOCATION" ]]; then
-  echo "Required environment variables AZURE_LOCATION are not set."
+  echo "::error::Required environment variables AZURE_LOCATION are not set."
   exit 1
 fi
 
@@ -22,12 +22,15 @@ to_pascal_case() {
 
 ACR_LOCATION_PASCAL=$(to_pascal_case "$AZURE_LOCATION")
 
+
+echo "::notice::Fetching AzureContainerRegistry service tag IPs for region $AZURE_LOCATION using Azure CLI..."
 # Use Azure CLI to get the service tag IPs for AzureContainerRegistry in the region
 # The output is a nested array, so flatten it and filter for IPv4 only
 ACR_IPS=$(az network list-service-tags --location "$AZURE_LOCATION" --query "values[?name=='AzureContainerRegistry.$ACR_LOCATION_PASCAL'].properties.addressPrefixes" -o json | jq -r '.[][]' | grep -v ':')
+echo "::notice::Completed fetching AzureContainerRegistry IPs."
 
 if [[ -z "$ACR_IPS" ]]; then
-  echo "No AzureContainerRegistry IPs found for region $AZURE_LOCATION."
+  echo "::error::No AzureContainerRegistry IPs found for region $AZURE_LOCATION."
   exit 1
 fi
 
@@ -38,10 +41,10 @@ ACR_IP_RULES=$(echo "$ACR_IPS" | jq -R '{action: "Allow", value: .}' | jq -s .)
 PARAM_FILE="infra/acr-ip-rules.parameters.json"
 
 if [[ -f "$PARAM_FILE" ]]; then
-  echo "Removing existing parameter file: $PARAM_FILE"
+  echo "::notice::Removing existing parameter file: $PARAM_FILE"
   rm "$PARAM_FILE"
 fi
 
 echo -e "{\n  \"acrNetworkRuleSetIpRules\": $ACR_IP_RULES\n}" > "$PARAM_FILE"
 
-echo "Wrote ACR IP rules to $PARAM_FILE"
+echo "::notice::Wrote ACR IP rules to $PARAM_FILE"
