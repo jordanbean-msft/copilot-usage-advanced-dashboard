@@ -2,6 +2,7 @@ param location string
 param abbrs object
 param resourceToken string
 param virtualNetwork object
+param resourceGroupName string
 
 module containerAppsNetworkSecurityGroupDeployment 'br/public:avm/res/network/network-security-group:0.5.1' = {
   name: 'container-apps-network-security-group'
@@ -310,7 +311,7 @@ resource existingVirtualNetwork 'Microsoft.Network/virtualNetworks@2021-05-01' e
 
 module virtualNetworkDeployment 'br/public:avm/res/network/virtual-network:0.6.1' = {
   name: 'virtual-network-deployment'
-  scope: resourceGroup(virtualNetwork.vnetResourceGroupName)
+  scope: resourceGroup(resourceGroupName)
   params: {
     addressPrefixes: [virtualNetwork.vnetAddressPrefixes]
     name: (empty(virtualNetwork.vnetName)) ? '${abbrs.networkVirtualNetworks}${resourceToken}' : virtualNetwork.vnetName
