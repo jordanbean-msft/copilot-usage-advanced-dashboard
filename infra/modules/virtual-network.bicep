@@ -317,9 +317,7 @@ var subnets = [
     serviceEndpoints: [
       'Microsoft.Storage'
     ]
-    networkSecurityGroupResourceId: bool(virtualNetwork.shouldProvisionPrivateEndpoints)
-      ? containerAppsNetworkSecurityGroupDeployment.?outputs.resourceId
-      : ''
+    networkSecurityGroupResourceId: containerAppsNetworkSecurityGroupDeployment.?outputs.resourceId
   }
   {
     name: virtualNetwork.privateEndpointSubnetName
